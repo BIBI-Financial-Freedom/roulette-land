@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
+  <meta name="description" content="원강랜드 — 커피내기를 재미있게 결정하는 슬롯머신 게임">
+  <meta name="theme-color" content="#6F4E37">
+  <title>원강랜드 — 커피내기 슬롯머신</title>
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/slot-machine.css">
+  <link rel="stylesheet" href="styles/animations.css">
+</head>
+<body>
+  <div id="app" role="main">
+    <!-- ===== 시작 화면 ===== -->
+    <section id="start-screen" class="screen active" aria-label="게임 설정">
+      <div class="container">
+        <header class="title-area">
+          <div class="logo" aria-hidden="true">🎰</div>
+          <h1>원강랜드</h1>
+          <p class="subtitle">커피내기 슬롯머신</p>
+        </header>
+
+        <div class="player-input-area">
+          <div class="input-group">
+            <input
+              type="text"
+              id="player-name-input"
+              placeholder="참가자 이름 입력"
+              maxlength="20"
+              autocomplete="off"
+              aria-label="참가자 이름"
+            >
+            <button id="add-player-btn" class="btn btn-secondary" aria-label="참가자 추가">+ 추가</button>
+          </div>
+          <p id="player-count" class="player-count">참가자 0/10명</p>
+          <ul id="player-list" class="player-list" aria-label="참가자 목록"></ul>
+        </div>
+
+        <div class="action-area">
+          <button id="shuffle-btn" class="btn btn-ghost" disabled>🔀 순서 섞기</button>
+          <div class="toggle-row">
+            <span class="toggle-label">커피 사는 사람</span>
+            <button id="rule-toggle-btn" class="toggle-btn" data-rule="last">
+              <span class="toggle-option active">꼴등이 사기</span>
+              <span class="toggle-option">1등이 사기</span>
+            </button>
+          </div>
+          <button id="start-game-btn" class="btn btn-primary" disabled>🎮 게임 시작!</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 게임 화면 ===== -->
+    <section id="game-screen" class="screen" aria-label="게임 진행">
+      <div class="container">
+        <div class="game-header">
+          <span class="round-info">라운드 1</span>
+          <span id="game-mode-badge" class="mode-badge">꼴등이 사기</span>
+          <span class="turn-info">차례: <strong id="current-player-name">—</strong> (<span id="turn-progress">0/0</span>)</span>
+        </div>
+
+        <div class="score-ref">
+          <span class="score-ref-item">☕<small>S +5</small></span>
+          <span class="score-ref-item">🫘<small>A +4</small></span>
+          <span class="score-ref-item">🍩<small>B +3</small></span>
+          <span class="score-ref-item">🥛<small>B +3</small></span>
+          <span class="score-ref-item">🧊<small>C +2</small></span>
+          <span class="score-ref-item">💧<small>D +1</small></span>
+        </div>
+
+        <div class="slot-machine">
+          <div class="payline-arrow arrow-left">▶</div>
+          <div class="slot-frame">
+            <div class="reel" id="reel-0">
+              <div class="reel-strip">
+                <span class="symbol">🫘</span>
+                <span class="symbol">☕</span>
+                <span class="symbol">🍩</span>
+              </div>
+            </div>
+            <div class="reel" id="reel-1">
+              <div class="reel-strip">
+                <span class="symbol">🥛</span>
+                <span class="symbol">🧊</span>
+                <span class="symbol">💧</span>
+              </div>
+            </div>
+            <div class="reel" id="reel-2">
+              <div class="reel-strip">
+                <span class="symbol">🍩</span>
+                <span class="symbol">☕</span>
+                <span class="symbol">🫘</span>
+              </div>
+            </div>
+          </div>
+          <div class="payline-arrow arrow-right">◀</div>
+        </div>
+
+        <button id="spin-btn" class="btn btn-spin" aria-label="슬롯 돌리기">🎰 SPIN!</button>
+
+        <div class="scoreboard" id="scoreboard" aria-label="현재 점수판">
+          <h3>현재 스코어</h3>
+          <ul id="score-list"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 서든데스 화면 ===== -->
+    <section id="sudden-death-screen" class="screen" aria-label="서든데스">
+      <div class="container">
+        <div class="sudden-death-header">
+          <h2>⚡ SUDDEN DEATH ⚡</h2>
+          <p class="subtitle">동점 서바이벌!</p>
+          <p id="sd-round-badge" class="sd-round-badge">라운드 1</p>
+        </div>
+        <p id="sd-matchup" class="matchup"></p>
+
+        <div class="slot-machine">
+          <div class="payline-arrow arrow-left">▶</div>
+          <div class="slot-frame">
+            <div class="reel" id="sd-reel-0"><div class="reel-strip"><span class="symbol">❓</span><span class="symbol">❓</span><span class="symbol">❓</span></div></div>
+            <div class="reel" id="sd-reel-1"><div class="reel-strip"><span class="symbol">❓</span><span class="symbol">❓</span><span class="symbol">❓</span></div></div>
+            <div class="reel" id="sd-reel-2"><div class="reel-strip"><span class="symbol">❓</span><span class="symbol">❓</span><span class="symbol">❓</span></div></div>
+          </div>
+          <div class="payline-arrow arrow-right">◀</div>
+        </div>
+
+        <p id="sd-current-turn" class="turn-info"></p>
+        <button id="sd-spin-btn" class="btn btn-spin btn-danger" aria-label="서든데스 스핀">⚡ SPIN!</button>
+      </div>
+    </section>
+
+    <!-- ===== 결과 화면 ===== -->
+    <section id="result-screen" class="screen" aria-label="최종 결과">
+      <div class="container">
+        <h2 class="result-title">🏆 최종 결과</h2>
+        <p id="result-mode-badge" class="mode-badge mode-badge-result">꼴등이 사기</p>
+        <ol id="ranking-list" class="ranking-list" aria-label="최종 순위"></ol>
+
+        <div class="loser-announce" id="loser-announce">
+          <p class="loser-text">☕ <strong id="loser-name">—</strong>님이<br>커피를 삽니다!</p>
+        </div>
+
+        <div class="action-area">
+          <button id="restart-btn" class="btn btn-primary">🔄 다시 하기</button>
+          <button id="share-btn" class="btn btn-secondary">📤 공유</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 사운드 토글 -->
+  <button id="mute-btn" class="mute-toggle" aria-label="사운드 토글">🔊</button>
+
+  <script>
+  // ========================================
+  //  Constants — 심볼 & 스코어링
+  // ========================================
+
+  const SYMBOLS = [
+    { id: 'espresso', emoji: '☕', name: '에스프레소', grade: 'S', gradeValue: 5, weight: 5 },
+    { id: 'bean',     emoji: '🫘', name: '원두',       grade: 'A', gradeValue: 4, weight: 15 },
+    { id: 'donut',    emoji: '🍩', name: '도넛',       grade: 'B', gradeValue: 3, weight: 20 },
+    { id: 'milk',     emoji: '🥛', name: '우유',       grade: 'B', gradeValue: 3, weight: 20 },
+    { id: 'sugar',    emoji: '🧊', name: '각설탕',     grade: 'C', gradeValue: 2, weight: 20 },
+    { id: 'water',    emoji: '💧', name: '물',         grade: 'D', gradeValue: 1, weight: 20 },
+  ];
+
+  // 서든데스 비대칭 가중치 — 동률 최소화
+  const SD_SYMBOLS = [
+    { id: 'espresso', emoji: '☕', name: '에스프레소', grade: 'S', gradeValue: 5, weight: 8 },
+    { id: 'bean',     emoji: '🫘', name: '원두',       grade: 'A', gradeValue: 4, weight: 12 },
+    { id: 'donut',    emoji: '🍩', name: '도넛',       grade: 'B', gradeValue: 3, weight: 18 },
+    { id: 'milk',     emoji: '🥛', name: '우유',       grade: 'B', gradeValue: 3, weight: 22 },
+    { id: 'sugar',    emoji: '🧊', name: '각설탕',     grade: 'C', gradeValue: 2, weight: 25 },
+    { id: 'water',    emoji: '💧', name: '물',         grade: 'D', gradeValue: 1, weight: 15 },
+  ];
+
+  const SCORE_TABLE = {
+    JACKPOT: 1000, TRIPLE: 500, DOUBLE_ESPRESSO: 300,
+    DOUBLE: 200, SINGLE_ESPRESSO: 150, ALL_DIFFERENT: 100, INSTANT_LOSE: 0,
+  };
+
+  const MATCH_LABELS = {
+    JACKPOT: '🎉 잭팟! 트리플 에스프레소!', TRIPLE: '✨ 트리플 매치!',
+    DOUBLE_ESPRESSO: '☕ 더블 에스프레소!', DOUBLE: '👍 더블 매치!',
+    SINGLE_ESPRESSO: '☕ 에스프레소 싱글', ALL_DIFFERENT: '😐 올 디퍼런트',
+    INSTANT_LOSE: '💀 트리플 물! 즉시 패배!',
+  };
+
+  const MATCH_SHORT = {
+    JACKPOT: '잭팟', TRIPLE: '트리플', DOUBLE_ESPRESSO: '더블에쏘',
+    DOUBLE: '더블', SINGLE_ESPRESSO: '싱글에쏘', ALL_DIFFERENT: '올디프',
+    INSTANT_LOSE: '즉패',
+  };
+
+  const SUDDEN_DEATH_MAX_ROUNDS = 5;
+  const MAX_PLAYERS = 10;
+  const MIN_PLAYERS = 2;
+
+  // 애니메이션 타이밍 (ms)
+  const TIMING = {
+    REEL_1: 800,
+    REEL_2: 1400,
+    REEL_3: 2400,
+    REEL_SLOWDOWN: 400,
+    REEL_SETTLE: 200,
+    POPUP_DISMISS: 200,
+    SD_REEL_1: 700,
+    SD_REEL_2: 600,
+    SD_REEL_3: 1000,
+  };
+
+  const CONFETTI_EMOJIS = ['🎉', '🎊', '✨', '⭐', '💫', '🌟', '🔥', '💥', '🎆', '☕'];
+
+  // ========================================
+  //  RNG — crypto 기반 난수
+  // ========================================
+
+  function getSecureRandom(max) {
+    if (max <= 1) return 0;
+    const array = new Uint32Array(1);
+    const limit = Math.floor(0xFFFFFFFF / max) * max;
+    do { crypto.getRandomValues(array); } while (array[0] >= limit);
+    return array[0] % max;
+  }
+
+  function weightedSelect(items) {
+    let totalWeight = 0;
+    for (let i = 0; i < items.length; i++) totalWeight += items[i].weight;
+    const random = getSecureRandom(totalWeight);
+    let cumulative = 0;
+    for (let i = 0; i < items.length; i++) {
+      cumulative += items[i].weight;
+      if (random < cumulative) return items[i];
+    }
+    return items[items.length - 1];
+  }
+
+  // ========================================
+  //  SlotEngine + ScoringEngine
+  // ========================================
+
+  function spin() {
+    return [weightedSelect(SYMBOLS), weightedSelect(SYMBOLS), weightedSelect(SYMBOLS)];
+  }
+
+  function sdSpin() {
+    return [weightedSelect(SD_SYMBOLS), weightedSelect(SD_SYMBOLS), weightedSelect(SD_SYMBOLS)];
+  }
+
+  function evaluate(symbols) {
+    const ids = [symbols[0].id, symbols[1].id, symbols[2].id];
+    let matchType;
+
+    if (ids[0] === ids[1] && ids[1] === ids[2]) {
+      matchType = ids[0] === 'water' ? 'INSTANT_LOSE' :
+                  ids[0] === 'espresso' ? 'JACKPOT' : 'TRIPLE';
+    } else {
+      const counts = {};
+      for (let i = 0; i < ids.length; i++) counts[ids[i]] = (counts[ids[i]] || 0) + 1;
+      let doubled = null;
+      for (const k in counts) { if (counts[k] === 2) { doubled = k; break; } }
+
+      if (doubled) {
+        matchType = doubled === 'espresso' ? 'DOUBLE_ESPRESSO' : 'DOUBLE';
+      } else if (ids.indexOf('espresso') >= 0) {
+        matchType = 'SINGLE_ESPRESSO';
+      } else {
+        matchType = 'ALL_DIFFERENT';
+      }
+    }
+
+    const gradeSum = symbols[0].gradeValue + symbols[1].gradeValue + symbols[2].gradeValue;
+
+    return {
+      symbols,
+      matchType,
+      score: SCORE_TABLE[matchType] + gradeSum,
+      gradeSum,
+      label: MATCH_LABELS[matchType],
+      isJackpot: matchType === 'JACKPOT',
+      isInstantLose: matchType === 'INSTANT_LOSE',
+    };
+  }
+
+  // 순위 정렬 비교 함수 (재사용)
+  function rankingCompare(a, b) {
+    return (b.result.score - a.result.score) || (b.result.gradeSum - a.result.gradeSum);
+  }
+
+  // ========================================
+  //  App — 게임 흐름
+  // ========================================
+
+  document.addEventListener('DOMContentLoaded', function () {
+
+    const state = {
+      players: [],
+      playerOrder: [],
+      currentIndex: 0,
+      results: {},
+      isSuddenDeath: false,
+      suddenDeathRound: 0,
+      suddenDeathPlayers: [],
+      sdCurrentIndex: 0,
+      isMuted: false,
+      buyRule: 'last',
+      lastRankings: null,  // 공유 기능용 최종 순위 캐시
+    };
+
+    // ── DOM 캐시 ──
+    const $ = (sel) => document.querySelector(sel);
+    const el = {
+      // Start screen
+      nameInput: $('#player-name-input'),
+      addBtn: $('#add-player-btn'),
+      playerList: $('#player-list'),
+      playerCount: $('#player-count'),
+      shuffleBtn: $('#shuffle-btn'),
+      startBtn: $('#start-game-btn'),
+      ruleToggleBtn: $('#rule-toggle-btn'),
+      // Game screen
+      gameBadge: $('#game-mode-badge'),
+      playerName: $('#current-player-name'),
+      turnProgress: $('#turn-progress'),
+      spinBtn: $('#spin-btn'),
+      scoreList: $('#score-list'),
+      // SD screen
+      sdMatchup: $('#sd-matchup'),
+      sdTurn: $('#sd-current-turn'),
+      sdSpinBtn: $('#sd-spin-btn'),
+      sdRoundBadge: $('#sd-round-badge'),
+      // Result screen
+      resultBadge: $('#result-mode-badge'),
+      rankingList: $('#ranking-list'),
+      loserAnnounce: $('#loser-announce'),
+      loserName: $('#loser-name'),
+      // Global
+      muteBtn: $('#mute-btn'),
+    };
+
+    function showScreen(name) {
+      const map = { start: 'start-screen', game: 'game-screen', suddenDeath: 'sudden-death-screen', result: 'result-screen' };
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      $('#' + map[name]).classList.add('active');
+    }
+
+    // XSS 방지용 HTML 이스케이프 (정적 맵 — DOM 생성 없이)
+    const ESCAPE_MAP = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+    function escapeHTML(str) {
+      return String(str).replace(/[&<>"']/g, c => ESCAPE_MAP[c]);
+    }
+
+    function shuffleArray(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = getSecureRandom(i + 1);
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function randomEmoji() {
+      return SYMBOLS[getSecureRandom(SYMBOLS.length)].emoji;
+    }
+
+    // ── 모드 뱃지 업데이트 ──
+    function getModeText() {
+      return state.buyRule === 'first' ? '🔥 1등이 사기' : '😈 꼴등이 사기';
+    }
+    function getModeClass(base) {
+      return base + (state.buyRule === 'first' ? ' mode-first' : ' mode-last');
+    }
+
+    // ── Confetti System ──
+    function spawnConfetti(count, duration) {
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          const el = document.createElement('span');
+          el.className = 'confetti';
+          el.textContent = CONFETTI_EMOJIS[getSecureRandom(CONFETTI_EMOJIS.length)];
+          el.style.left = (Math.random() * 100) + 'vw';
+          el.style.animationDuration = (2 + Math.random() * 2) + 's';
+          el.style.fontSize = (16 + Math.random() * 20) + 'px';
+          document.body.appendChild(el);
+          setTimeout(() => el.remove(), 4500);
+        }, i * (duration / count));
+      }
+    }
+
+    // ── Vibration helper ──
+    function vibrate(pattern) {
+      if (!state.isMuted && navigator.vibrate) {
+        try { navigator.vibrate(pattern); } catch (e) { /* 미지원 기기 */ }
+      }
+    }
+
+    // ── 매치 결과 이펙트 ──
+    function playMatchEffects(result) {
+      if (result.isJackpot) {
+        document.body.classList.add('flash-gold', 'mega-shake');
+        spawnConfetti(50, 2000);
+        vibrate([100, 50, 100, 50, 200]);
+        setTimeout(() => document.body.classList.remove('flash-gold', 'mega-shake'), 1600);
+      } else if (result.isInstantLose) {
+        document.body.classList.add('flash-red', 'shake');
+        vibrate([300, 100, 300]);
+        setTimeout(() => document.body.classList.remove('flash-red', 'shake'), 800);
+      } else if (result.matchType === 'TRIPLE') {
+        document.body.classList.add('flash-gold');
+        spawnConfetti(25, 1000);
+        vibrate([100, 50, 100]);
+        setTimeout(() => document.body.classList.remove('flash-gold'), 1200);
+      } else if (result.matchType === 'DOUBLE_ESPRESSO' || result.matchType === 'DOUBLE') {
+        spawnConfetti(8, 500);
+        vibrate([80]);
+      }
+    }
+
+    // ========================================
+    //  Start Screen
+    // ========================================
+
+    function updateStartUI() {
+      el.playerList.innerHTML = '';
+      state.players.forEach((name, i) => {
+        const li = document.createElement('li');
+        li.innerHTML =
+          '<span class="player-name">👤 ' + escapeHTML(name) + '</span>' +
+          '<button class="remove-btn" data-index="' + i + '" aria-label="' + escapeHTML(name) + ' 삭제">✕</button>';
+        el.playerList.appendChild(li);
+      });
+      const count = state.players.length;
+      const hasEnough = count >= MIN_PLAYERS;
+      el.startBtn.disabled = !hasEnough;
+      el.shuffleBtn.disabled = !hasEnough;
+      el.playerCount.textContent = '참가자 ' + count + '/' + MAX_PLAYERS + '명';
+      el.playerCount.classList.toggle('count-full', count >= MAX_PLAYERS);
+      el.playerCount.classList.toggle('count-ready', hasEnough && count < MAX_PLAYERS);
+    }
+
+    function addPlayer() {
+      const name = el.nameInput.value.trim();
+      if (!name || name.length > 20) return;
+      if (state.players.length >= MAX_PLAYERS) {
+        el.playerCount.classList.add('count-shake');
+        setTimeout(() => el.playerCount.classList.remove('count-shake'), 600);
+        return;
+      }
+      let finalName = name;
+      let count = 1;
+      while (state.players.indexOf(finalName) >= 0) { count++; finalName = name + count; }
+      state.players.push(finalName);
+      el.nameInput.value = '';
+      el.nameInput.focus();
+      updateStartUI();
+    }
+
+    el.addBtn.addEventListener('click', addPlayer);
+    el.nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') addPlayer(); });
+
+    el.playerList.addEventListener('click', e => {
+      const btn = e.target.closest('.remove-btn');
+      if (!btn) return;
+      state.players.splice(parseInt(btn.dataset.index, 10), 1);
+      updateStartUI();
+    });
+
+    el.shuffleBtn.addEventListener('click', () => {
+      state.players = shuffleArray(state.players);
+      updateStartUI();
+    });
+
+    // ── Rule toggle ──
+    el.ruleToggleBtn.addEventListener('click', () => {
+      const opts = el.ruleToggleBtn.querySelectorAll('.toggle-option');
+      if (state.buyRule === 'last') {
+        state.buyRule = 'first';
+        el.ruleToggleBtn.dataset.rule = 'first';
+        opts[0].classList.remove('active');
+        opts[1].classList.add('active');
+      } else {
+        state.buyRule = 'last';
+        el.ruleToggleBtn.dataset.rule = 'last';
+        opts[1].classList.remove('active');
+        opts[0].classList.add('active');
+      }
+    });
+
+    // ========================================
+    //  Game Screen
+    // ========================================
+
+    el.startBtn.addEventListener('click', () => {
+      state.playerOrder = state.players.map((_, i) => i);
+      state.currentIndex = 0;
+      state.results = {};
+      state.isSuddenDeath = false;
+      state.lastRankings = null;
+      startGameRound();
+    });
+
+    function startGameRound() {
+      showScreen('game');
+      el.gameBadge.textContent = getModeText();
+      el.gameBadge.className = getModeClass('mode-badge');
+      updateGameUI();
+      renderScoreboard();
+      el.spinBtn.disabled = false;
+    }
+
+    function threeSymbolsHTML(centerEmoji) {
+      return '<span class="symbol">' + randomEmoji() + '</span>' +
+             '<span class="symbol">' + centerEmoji + '</span>' +
+             '<span class="symbol">' + randomEmoji() + '</span>';
+    }
+
+    function updateGameUI() {
+      const idx = state.playerOrder[state.currentIndex];
+      el.playerName.textContent = state.players[idx];
+      el.turnProgress.textContent = (state.currentIndex + 1) + '/' + state.playerOrder.length;
+      [0, 1, 2].forEach(i => {
+        const reel = $('#reel-' + i);
+        reel.classList.remove('spinning', 'reel-stopped', 'matched');
+        reel.querySelector('.reel-strip').innerHTML = threeSymbolsHTML(randomEmoji());
+      });
+    }
+
+    function renderScoreboard() {
+      el.scoreList.innerHTML = '';
+      state.playerOrder.forEach((pIdx, orderIdx) => {
+        const result = state.results[pIdx];
+        const li = document.createElement('li');
+        if (orderIdx === state.currentIndex && !result) li.classList.add('current-turn');
+        if (result) li.classList.add('has-result');
+
+        const matchLabel = result ? '<span class="score-match">' + escapeHTML(MATCH_SHORT[result.matchType]) + '</span>' : '';
+        li.innerHTML =
+          '<span class="score-player-name">' + escapeHTML(state.players[pIdx]) + '</span>' +
+          '<span class="score-detail">' + matchLabel +
+          '<span class="score-value">' + (result ? result.score + '점' : '대기중') + '</span></span>';
+        el.scoreList.appendChild(li);
+      });
+    }
+
+    // ========================================
+    //  Reel Animation (공용)
+    // ========================================
+
+    async function animateReels(symbols, prefix, timings) {
+      const t = timings || { r1: TIMING.REEL_1, r2: TIMING.REEL_2, r3: TIMING.REEL_3 };
+
+      // 릴 스피닝 시작
+      [0, 1, 2].forEach(i => {
+        const strip = $('#' + prefix + i + ' .reel-strip');
+        let html = '';
+        for (let j = 0; j < 24; j++) html += '<span class="symbol">' + randomEmoji() + '</span>';
+        strip.innerHTML = html;
+        $('#' + prefix + i).classList.add('spinning');
+        $('#' + prefix + i).style.animationDuration = '';
+      });
+
+      // 릴 순차 정지
+      const delays = [t.r1, t.r2, t.r3];
+      for (let i = 0; i < 3; i++) {
+        const waitTime = (i === 0) ? delays[0] : (delays[i] - delays[i - 1]);
+
+        // 마지막 릴 — 슬로우다운 연출
+        if (i === 2) {
+          await sleep(waitTime - TIMING.REEL_SLOWDOWN);
+          const lastStrip = $('#' + prefix + '2 .reel-strip');
+          lastStrip.style.animationDuration = '0.4s';
+          await sleep(TIMING.REEL_SLOWDOWN);
+        } else {
+          await sleep(waitTime);
+        }
+
+        const reel = $('#' + prefix + i);
+        reel.classList.remove('spinning');
+        reel.classList.add('reel-stopped');
+        reel.querySelector('.reel-strip').style.animationDuration = '';
+        reel.querySelector('.reel-strip').innerHTML =
+          '<span class="symbol">' + randomEmoji() + '</span>' +
+          '<span class="symbol result">' + symbols[i].emoji + '</span>' +
+          '<span class="symbol">' + randomEmoji() + '</span>';
+
+        vibrate([30]);
+
+        // 니어미스 감지 (2번째 릴 정지 후)
+        if (i === 1 && symbols[0].id === symbols[1].id) {
+          reel.closest('.slot-frame').classList.add('tension');
+          vibrate([50, 30, 50, 30, 50]);
+        }
+      }
+
+      // 텐션 제거
+      document.querySelectorAll('.slot-frame.tension').forEach(f => f.classList.remove('tension'));
+
+      // 트리플 매치 하이라이트
+      if (symbols[0].id === symbols[1].id && symbols[1].id === symbols[2].id) {
+        [0, 1, 2].forEach(i => $('#' + prefix + i).classList.add('matched'));
+      }
+
+      await sleep(TIMING.REEL_SETTLE);
+    }
+
+    // ========================================
+    //  Result Popup (스핀 결과 팝업)
+    // ========================================
+
+    async function showResultPopup(symbols, result) {
+      const overlay = document.createElement('div');
+      overlay.className = 'result-popup';
+
+      // 등급별 테마
+      let tier = 'normal';
+      if (result.isJackpot) tier = 'jackpot';
+      else if (result.matchType === 'TRIPLE') tier = 'triple';
+      else if (result.isInstantLose) tier = 'lose';
+      else if (result.matchType === 'DOUBLE_ESPRESSO') tier = 'great';
+
+      const inner = document.createElement('div');
+      inner.className = 'popup-card popup-tier-' + tier;
+
+      // 이모지 행
+      let emojiRow = '<div class="popup-emojis">';
+      symbols.forEach((s, idx) => {
+        emojiRow += '<span class="popup-emoji" style="animation-delay:' + (idx * 0.2) + 's">' + s.emoji + '</span>';
+      });
+      emojiRow += '</div>';
+
+      // 라벨
+      const labelHTML = '<div class="popup-label">' + escapeHTML(result.label) + '</div>';
+
+      // 점수
+      const scoreHTML = '<div class="popup-score' + (tier === 'jackpot' ? ' popup-score-rainbow' : '') +
+        (tier === 'lose' ? ' popup-score-lose' : '') + '">' + result.score + '점</div>';
+
+      // 니어미스 텍스트
+      let extraText = '';
+      if (symbols[0].id === symbols[1].id && symbols[1].id !== symbols[2].id) {
+        extraText = '<div class="popup-extra">아깝다...! 🫣</div>';
+      } else if (symbols[1].id === symbols[2].id && symbols[0].id !== symbols[1].id) {
+        extraText = '<div class="popup-extra">아슬아슬...! 😱</div>';
+      }
+
+      const tapHint = '<div class="popup-tap">탭하여 계속</div>';
+
+      inner.innerHTML = emojiRow + labelHTML + scoreHTML + extraText + tapHint;
+      overlay.appendChild(inner);
+      document.body.appendChild(overlay);
+
+      return new Promise(resolve => {
+        overlay.addEventListener('click', () => {
+          overlay.classList.add('popup-dismiss');
+          setTimeout(() => { overlay.remove(); resolve(); }, TIMING.POPUP_DISMISS);
+        }, { once: true });
+      });
+    }
+
+    // ========================================
+    //  Spin Handler (본게임)
+    // ========================================
+
+    el.spinBtn.addEventListener('click', async () => {
+      el.spinBtn.disabled = true;
+      const symbols = spin();
+      const result = evaluate(symbols);
+      const idx = state.playerOrder[state.currentIndex];
+
+      document.querySelectorAll('.slot-frame').forEach(f => f.classList.add('tension'));
+      vibrate([50]);
+      await animateReels(symbols, 'reel-');
+      document.querySelectorAll('.slot-frame').forEach(f => f.classList.remove('tension'));
+
+      state.results[idx] = result;
+      renderScoreboard();
+      playMatchEffects(result);
+      await showResultPopup(symbols, result);
+
+      state.currentIndex++;
+      if (state.currentIndex < state.playerOrder.length) {
+        updateGameUI();
+        el.spinBtn.disabled = false;
+      } else {
+        finishRound();
+      }
+    });
+
+    // ========================================
+    //  Round Finish
+    // ========================================
+
+    function finishRound() {
+      const rankings = state.playerOrder.map(pIdx => ({
+        playerIndex: pIdx, name: state.players[pIdx], result: state.results[pIdx]
+      }));
+      rankings.sort(rankingCompare);
+
+      // 즉시 패배 (트리플 물)
+      const instantLosers = rankings.filter(r => r.result.isInstantLose);
+      if (instantLosers.length > 0) {
+        showResult(rankings, instantLosers.map(l => l.name));
+        return;
+      }
+
+      // 패자/승자 결정
+      let buyers;
+      if (state.buyRule === 'first') {
+        const maxScore = rankings[0].result.score;
+        buyers = rankings.filter(r => r.result.score === maxScore);
+      } else {
+        const minScore = rankings[rankings.length - 1].result.score;
+        buyers = rankings.filter(r => r.result.score === minScore);
+      }
+
+      if (buyers.length > 1) startSuddenDeath(buyers);
+      else showResult(rankings, [buyers[0].name]);
+    }
+
+    // ========================================
+    //  Sudden Death
+    // ========================================
+
+    function startSuddenDeath(tiedPlayers) {
+      state.isSuddenDeath = true;
+      state.suddenDeathRound = 1;
+      state.suddenDeathPlayers = tiedPlayers.map(p => ({
+        playerIndex: p.playerIndex, name: p.name, result: p.result, sdResult: null
+      }));
+      showScreen('suddenDeath');
+      renderSuddenDeath();
+    }
+
+    function renderSuddenDeath() {
+      const names = state.suddenDeathPlayers.map(p => p.name);
+      el.sdMatchup.textContent = names.join(' vs ');
+      el.sdTurn.textContent = '차례: ' + names[0];
+      el.sdRoundBadge.textContent = '서든데스 ' + state.suddenDeathRound + '라운드';
+      state.sdCurrentIndex = 0;
+      [0, 1, 2].forEach(i => {
+        const reel = $('#sd-reel-' + i);
+        reel.classList.remove('spinning', 'reel-stopped', 'matched');
+        reel.querySelector('.reel-strip').innerHTML =
+          '<span class="symbol">❓</span><span class="symbol">❓</span><span class="symbol">❓</span>';
+      });
+      el.sdSpinBtn.disabled = false;
+    }
+
+    el.sdSpinBtn.addEventListener('click', async () => {
+      el.sdSpinBtn.disabled = true;
+      const player = state.suddenDeathPlayers[state.sdCurrentIndex];
+      const symbols = sdSpin();
+      const result = evaluate(symbols);
+
+      vibrate([50]);
+      await animateReels(symbols, 'sd-reel-', {
+        r1: TIMING.SD_REEL_1,
+        r2: TIMING.SD_REEL_1 + TIMING.SD_REEL_2,
+        r3: TIMING.SD_REEL_1 + TIMING.SD_REEL_2 + TIMING.SD_REEL_3
+      });
+
+      playMatchEffects(result);
+      player.sdResult = result;
+      await showResultPopup(symbols, result);
+
+      state.sdCurrentIndex++;
+      if (state.sdCurrentIndex < state.suddenDeathPlayers.length) {
+        const nextName = state.suddenDeathPlayers[state.sdCurrentIndex].name;
+        el.sdTurn.textContent = '차례: ' + nextName;
+        [0, 1, 2].forEach(i => {
+          const reel = $('#sd-reel-' + i);
+          reel.classList.remove('reel-stopped', 'matched');
+          reel.querySelector('.reel-strip').innerHTML =
+            '<span class="symbol">❓</span><span class="symbol">❓</span><span class="symbol">❓</span>';
+        });
+        el.sdSpinBtn.disabled = false;
+      } else {
+        resolveSuddenDeath();
+      }
+    });
+
+    function resolveSuddenDeath() {
+      const players = state.suddenDeathPlayers;
+
+      // SD 결과 매핑 (결과 화면용)
+      const sdResultMap = {};
+      players.forEach(p => { sdResultMap[p.playerIndex] = p.sdResult; });
+
+      function buildRankings() {
+        return state.playerOrder.map(pIdx => ({
+          playerIndex: pIdx,
+          name: state.players[pIdx],
+          result: sdResultMap[pIdx] || state.results[pIdx],
+        })).sort(rankingCompare);
+      }
+
+      // 트리플 물 즉시 패배 — 규칙 무관
+      const instantLosers = players.filter(p => p.sdResult.isInstantLose);
+      if (instantLosers.length > 0) {
+        showResult(buildRankings(), instantLosers.map(l => l.name));
+        return;
+      }
+
+      const scores = players.map(p => p.sdResult.score);
+      const targetScore = state.buyRule === 'first'
+        ? Math.max.apply(null, scores)
+        : Math.min.apply(null, scores);
+      const losers = players.filter(p => p.sdResult.score === targetScore);
+
+      if (losers.length === 1 || state.suddenDeathRound >= SUDDEN_DEATH_MAX_ROUNDS) {
+        showResult(buildRankings(), losers.map(l => l.name));
+      } else {
+        state.suddenDeathRound++;
+        state.suddenDeathPlayers = losers.map(p => ({
+          playerIndex: p.playerIndex, name: p.name, result: p.result, sdResult: null
+        }));
+        renderSuddenDeath();
+      }
+    }
+
+    // ========================================
+    //  Result Screen
+    // ========================================
+
+    function showResult(rankings, loserNames) {
+      showScreen('result');
+      state.lastRankings = rankings;
+
+      // 모드 뱃지
+      el.resultBadge.textContent = getModeText();
+      el.resultBadge.className = getModeClass('mode-badge mode-badge-result');
+
+      // 순위 리스트
+      el.rankingList.innerHTML = '';
+      const badges = ['🥇', '🥈', '🥉'];
+      const loserSet = new Set(loserNames);
+
+      rankings.forEach((r, i) => {
+        const isLoser = loserSet.has(r.name);
+        const li = document.createElement('li');
+        li.className = 'slide-in' + (isLoser ? ' rank-loser' : '');
+        li.style.animationDelay = (i * 0.2) + 's';
+        li.innerHTML =
+          '<span class="rank-badge">' + (badges[i] || (i + 1) + '위') + '</span>' +
+          '<div class="rank-info">' +
+            '<div class="rank-name">' + escapeHTML(r.name) + '</div>' +
+            '<div class="rank-detail">' +
+              '<span class="rank-symbols">' + r.result.symbols.map(s => s.emoji).join('') + '</span>' +
+              '<span class="rank-match-type">' + escapeHTML(MATCH_SHORT[r.result.matchType]) + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<span class="rank-score">' + r.result.score + '점</span>';
+        el.rankingList.appendChild(li);
+      });
+
+      // 패자 발표 연출
+      const loserText = loserNames.map(n => escapeHTML(n)).join(', ');
+      el.loserName.textContent = loserText;
+      el.loserAnnounce.classList.remove('scale-up');
+      el.loserAnnounce.style.display = 'none';
+
+      const announceDelay = rankings.length * 200 + 600;
+      setTimeout(() => {
+        el.loserAnnounce.style.display = '';
+        el.loserAnnounce.style.animation = 'loser-slam 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        vibrate([200, 100, 200]);
+        spawnConfetti(20, 1000);
+        el.loserName.style.animation = 'text-glow-pulse 1.5s ease-in-out infinite';
+      }, announceDelay);
+    }
+
+    // ========================================
+    //  Restart & Share
+    // ========================================
+
+    $('#restart-btn').addEventListener('click', () => {
+      state.currentIndex = 0;
+      state.results = {};
+      state.isSuddenDeath = false;
+      state.lastRankings = null;
+      // 토글 상태 초기화
+      state.buyRule = 'last';
+      const opts = el.ruleToggleBtn.querySelectorAll('.toggle-option');
+      opts[0].classList.add('active');
+      opts[1].classList.remove('active');
+      el.ruleToggleBtn.dataset.rule = 'last';
+      showScreen('start');
+    });
+
+    $('#share-btn').addEventListener('click', async () => {
+      const rankings = state.lastRankings || state.playerOrder.map(pIdx => ({
+        name: state.players[pIdx], result: state.results[pIdx]
+      })).sort(rankingCompare);
+
+      const badges = ['🥇', '🥈', '🥉'];
+      const modeLabel = state.buyRule === 'first' ? '🔥 1등이 사기' : '😈 꼴등이 사기';
+      const lines = rankings.map((r, i) =>
+        (badges[i] || (i + 1) + '위') + ' ' + (r.name || '') + ' - ' +
+        r.result.symbols.map(s => s.emoji).join('') +
+        ' (' + r.result.score + '점 · ' + MATCH_SHORT[r.result.matchType] + ')'
+      );
+      const loserName = el.loserName.textContent;
+      const text = [
+        '🎰 원강랜드 커피내기 결과!',
+        '모드: ' + modeLabel,
+        '━━━━━━━━━━━━━',
+      ].concat(lines).concat([
+        '━━━━━━━━━━━━━',
+        '☕ ' + loserName + '님이 커피를 삽니다!',
+      ]).join('\n');
+
+      try {
+        if (navigator.share) await navigator.share({ title: '원강랜드', text: text });
+        else { await navigator.clipboard.writeText(text); alert('결과가 클립보드에 복사되었습니다!'); }
+      } catch (e) { /* 취소 */ }
+    });
+
+    // ── Mute ──
+    el.muteBtn.addEventListener('click', () => {
+      state.isMuted = !state.isMuted;
+      el.muteBtn.textContent = state.isMuted ? '🔇' : '🔊';
+    });
+
+  }); // end DOMContentLoaded
+  </script>
+</body>
+</html>
