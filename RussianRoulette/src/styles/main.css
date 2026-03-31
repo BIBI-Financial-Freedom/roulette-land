@@ -795,6 +795,28 @@ body {
   margin-top: 12px;
 }
 
+/* ===== Hub Home Button ===== */
+.hub-home-float {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 200;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  background: var(--bg-primary);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+.hub-home-float:hover {
+  border-color: var(--gold);
+}
+
 /* ===== Sound Toggle (Global Float) ===== */
 .sound-float {
   position: fixed;

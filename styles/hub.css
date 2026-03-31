@@ -1,0 +1,257 @@
+/* ===== 룰렛 랜드 허브 CSS ===== */
+
+:root {
+  --bg: #0a0a0f;
+  --bg-card: #14141f;
+  --border: #2a2a3a;
+  --text: #e8e8f0;
+  --text-dim: #8888aa;
+  --accent: #ffd700;
+  --coffee: #6F4E37;
+  --coffee-glow: rgba(111, 78, 55, 0.4);
+  --roulette: #c0392b;
+  --roulette-glow: rgba(192, 57, 43, 0.4);
+  --coming: #555;
+  --radius: 16px;
+  --transition: 0.3s ease;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== Background Particles ===== */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255, 215, 0, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(192, 57, 43, 0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ===== Hub Layout ===== */
+.hub {
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 60px 20px 40px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== Header ===== */
+.hub-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.hub-title {
+  font-size: 2.8rem;
+  font-weight: 900;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, var(--accent) 0%, #ffaa00 50%, var(--accent) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { background-position: 0% center; }
+  50% { background-position: 200% center; }
+}
+
+.hub-subtitle {
+  margin-top: 8px;
+  font-size: 1rem;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+}
+
+/* ===== Game Grid ===== */
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  flex: 1;
+}
+
+/* ===== Game Card ===== */
+.game-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 36px 24px 28px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--text);
+  overflow: hidden;
+  transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+  cursor: pointer;
+}
+
+.game-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--accent);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Glow effect */
+.card-glow {
+  position: absolute;
+  top: -40%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160%;
+  height: 80%;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity var(--transition);
+  pointer-events: none;
+}
+
+.game-card:hover .card-glow {
+  opacity: 1;
+}
+
+.card-coffee .card-glow {
+  background: radial-gradient(ellipse, var(--coffee-glow), transparent 70%);
+}
+
+.card-roulette .card-glow {
+  background: radial-gradient(ellipse, var(--roulette-glow), transparent 70%);
+}
+
+.card-coffee:hover { border-color: var(--coffee); }
+.card-roulette:hover { border-color: var(--roulette); }
+
+/* Icon */
+.card-icon {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+  transition: transform var(--transition);
+}
+
+.game-card:hover .card-icon {
+  transform: scale(1.15);
+}
+
+/* Body */
+.card-body {
+  position: relative;
+  z-index: 1;
+}
+
+.card-title {
+  font-size: 1.4rem;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.card-desc {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 14px;
+}
+
+/* Tags */
+.card-tags {
+  list-style: none;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.card-tags li {
+  font-size: 0.7rem;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-dim);
+}
+
+/* Arrow */
+.card-arrow {
+  position: absolute;
+  bottom: 12px;
+  right: 16px;
+  font-size: 1.2rem;
+  color: var(--text-dim);
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity var(--transition), transform var(--transition);
+}
+
+.game-card:hover .card-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Coming Soon */
+.card-coming {
+  cursor: default;
+  opacity: 0.45;
+  border-style: dashed;
+}
+
+.card-coming:hover {
+  transform: none;
+  border-color: var(--border);
+  box-shadow: none;
+}
+
+/* ===== Footer ===== */
+.hub-footer {
+  text-align: center;
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.hub-footer p {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 480px) {
+  .hub {
+    padding: 40px 16px 32px;
+  }
+
+  .hub-title {
+    font-size: 2rem;
+  }
+
+  .game-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-icon {
+    font-size: 2.8rem;
+  }
+
+  .card-title {
+    font-size: 1.2rem;
+  }
+}
