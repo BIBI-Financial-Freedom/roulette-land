@@ -1,0 +1,128 @@
+/* ===== Keyframe Animations ===== */
+
+/* Chamber Spin */
+@keyframes chamber-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(1080deg); }
+}
+
+.chamber-wrap.spinning .chamber {
+  animation: chamber-spin 2s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+/* Heartbeat (Slow) */
+@keyframes heartbeat-slow {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.03); }
+  30% { transform: scale(1); }
+}
+
+/* Heartbeat (Fast) */
+@keyframes heartbeat-fast {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.06); }
+  30% { transform: scale(1); }
+}
+
+.heartbeat-1 { animation: heartbeat-slow 1s infinite; }
+.heartbeat-2 { animation: heartbeat-slow 0.75s infinite; }
+.heartbeat-3 { animation: heartbeat-fast 0.6s infinite; }
+.heartbeat-4 { animation: heartbeat-fast 0.45s infinite; }
+.heartbeat-5 { animation: heartbeat-fast 0.35s infinite; }
+
+/* Slot Blink (Current) */
+@keyframes slot-blink {
+  0%, 100% { box-shadow: 0 0 8px rgba(243, 156, 18, 0.4), inset 0 0 10px rgba(0,0,0,0.4); }
+  50% { box-shadow: 0 0 20px rgba(243, 156, 18, 0.8), inset 0 0 10px rgba(0,0,0,0.4); }
+}
+
+.chamber-slot.current {
+  animation: slot-blink 1s ease-in-out infinite;
+}
+
+/* Flash Green (Survive) */
+@keyframes flash-green {
+  0% { background-color: rgba(46, 204, 113, 0.3); }
+  100% { background-color: transparent; }
+}
+
+body.flash-green {
+  animation: flash-green 0.5s ease-out;
+}
+
+/* Flash Red (Bang) */
+@keyframes flash-red {
+  0% { background-color: rgba(231, 76, 60, 0.4); }
+  100% { background-color: transparent; }
+}
+
+body.flash-red {
+  animation: flash-red 0.6s ease-out;
+}
+
+/* Screen Shake */
+@keyframes screen-shake {
+  0%, 100% { transform: translateX(0); }
+  10% { transform: translateX(-8px) translateY(2px); }
+  20% { transform: translateX(8px) translateY(-2px); }
+  30% { transform: translateX(-6px) translateY(1px); }
+  40% { transform: translateX(6px) translateY(-1px); }
+  50% { transform: translateX(-4px); }
+  60% { transform: translateX(4px); }
+  70% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+  90% { transform: translateX(-1px); }
+}
+
+body.screen-shake {
+  animation: screen-shake 0.6s ease-out;
+}
+
+/* Fade In */
+@keyframes fade-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.overlay.active .overlay-content {
+  animation: fade-in 0.3s ease-out;
+}
+
+/* Result Entrance */
+@keyframes result-entrance {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.result-announcement {
+  animation: result-entrance 0.5s ease-out;
+}
+
+/* Pulse (for trigger button tension) */
+@keyframes pulse-danger {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+  50% { box-shadow: 0 0 0 12px rgba(231, 76, 60, 0); }
+}
+
+.btn-trigger.tension {
+  animation: pulse-danger 1.2s ease-in-out infinite;
+}
+
+/* Loading dots */
+@keyframes loading-dots {
+  0%, 20% { content: '.'; }
+  40% { content: '..'; }
+  60%, 100% { content: '...'; }
+}
+
+/* Skull bounce (result) */
+@keyframes skull-bounce {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.2); }
+  50% { transform: scale(0.9); }
+  75% { transform: scale(1.1); }
+}
+
+.result-skull {
+  animation: skull-bounce 0.8s ease-out;
+}

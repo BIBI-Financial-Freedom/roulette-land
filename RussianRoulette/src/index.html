@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔫 러시안 룰렛 — 꽝 뽑기</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/animations.css">
+  <link rel="stylesheet" href="styles/responsive.css">
+</head>
+<body>
+  <!-- ===== 글로벌 사운드 토글 ===== -->
+  <button id="sound-toggle" class="btn-icon sound-float" title="사운드 ON/OFF">🔊</button>
+
+  <!-- ===== 시작 화면 ===== -->
+  <section id="setup-screen" class="screen active">
+    <div class="container">
+      <header class="logo">
+        <h1>🔫 러시안 룰렛</h1>
+        <p class="subtitle">── 꽝 뽑기 ──</p>
+      </header>
+
+      <div class="card">
+        <h2>👤 참가자</h2>
+        <div id="player-list"></div>
+        <div class="player-actions">
+          <button id="add-player-btn" class="btn btn-secondary">+ 참가자 추가</button>
+          <button id="shuffle-player-btn" class="btn btn-secondary">🔀 순서 섞기</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>🎮 게임 모드</h2>
+        <div id="mode-selector" class="mode-grid">
+          <button class="mode-card active" data-mode="classic" data-bullets="1">
+            <span class="mode-icon">🎯</span>
+            <span class="mode-name">클래식</span>
+            <span class="mode-desc">탄환 1발, 순차 진행</span>
+          </button>
+          <button class="mode-card" data-mode="fair" data-bullets="1">
+            <span class="mode-icon">⚖️</span>
+            <span class="mode-name">페어</span>
+            <span class="mode-desc">매 턴 리스핀</span>
+          </button>
+          <button class="mode-card" data-mode="hard" data-bullets="2">
+            <span class="mode-icon">🔥</span>
+            <span class="mode-name">하드</span>
+            <span class="mode-desc">탄환 2발, 고위험</span>
+          </button>
+          <button class="mode-card" data-mode="deathmatch" data-bullets="3">
+            <span class="mode-icon">☠️</span>
+            <span class="mode-name">데스매치</span>
+            <span class="mode-desc">탄환 3발, 50:50</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📝 벌칙</h2>
+        <div class="penalty-presets" id="penalty-presets">
+          <button class="preset-btn active" data-penalty="☕ 커피 사기">☕ 커피</button>
+          <button class="preset-btn" data-penalty="🍽️ 점심값 쏘기">🍽️ 점심</button>
+          <button class="preset-btn" data-penalty="🧹 청소하기">🧹 청소</button>
+          <button class="preset-btn" data-penalty="🎤 노래 부르기">🎤 노래</button>
+        </div>
+        <input type="text" id="penalty-input" class="input" placeholder="또는 직접 입력..." maxlength="30">
+      </div>
+
+      <div class="card" id="loser-count-card" style="display:none">
+        <h2>💀 꽝 인원</h2>
+        <p class="card-hint">몇 명을 꽝으로 정할까요?</p>
+        <div class="loser-count-selector" id="loser-count-selector">
+          <button class="loser-count-btn active" data-count="1">1명</button>
+        </div>
+      </div>
+
+      <div id="duplicate-warning" class="warning hidden">⚠️ 중복된 이름이 있습니다!</div>
+      <button id="start-btn" class="btn btn-primary btn-large" disabled>🔫 게임 시작!</button>
+    </div>
+  </section>
+
+  <!-- ===== 장전 화면 ===== -->
+  <section id="loading-screen" class="screen">
+    <div class="container center-content">
+      <h2 class="loading-title">탄창 장전 중...</h2>
+      <div id="loading-chamber" class="chamber-wrap loading">
+        <div class="chamber">
+          <div class="chamber-slot" data-index="0"></div>
+          <div class="chamber-slot" data-index="1"></div>
+          <div class="chamber-slot" data-index="2"></div>
+          <div class="chamber-slot" data-index="3"></div>
+          <div class="chamber-slot" data-index="4"></div>
+          <div class="chamber-slot" data-index="5"></div>
+          <div class="chamber-center"></div>
+        </div>
+      </div>
+      <p class="loading-text">철컥... 철컥...</p>
+    </div>
+  </section>
+
+  <!-- ===== 게임 화면 ===== -->
+  <section id="game-screen" class="screen">
+    <div class="container">
+      <header class="game-header">
+        <div class="game-title">🔫 러시안 룰렛</div>
+        <div id="round-info" class="round-info">라운드 1</div>
+      </header>
+
+      <div class="current-turn">
+        <span class="turn-label">현재 차례</span>
+        <span id="current-player" class="turn-player">🎯 ---</span>
+        <span id="probability" class="turn-prob">확률: 1/6 (16.7%)</span>
+      </div>
+
+      <div id="game-chamber" class="chamber-wrap">
+        <div class="chamber">
+          <div class="chamber-slot" data-index="0"></div>
+          <div class="chamber-slot" data-index="1"></div>
+          <div class="chamber-slot" data-index="2"></div>
+          <div class="chamber-slot" data-index="3"></div>
+          <div class="chamber-slot" data-index="4"></div>
+          <div class="chamber-slot" data-index="5"></div>
+          <div class="chamber-center"></div>
+        </div>
+      </div>
+
+      <button id="trigger-btn" class="btn btn-trigger">🔫 방아쇠 당기기</button>
+
+      <div class="player-status-list" id="player-status-list"></div>
+    </div>
+  </section>
+
+  <!-- ===== 생존 오버레이 ===== -->
+  <div id="survive-overlay" class="overlay">
+    <div class="overlay-content survive-content">
+      <div class="survive-icon">✅</div>
+      <h2 class="survive-title">찰칵!</h2>
+      <p id="survive-player" class="survive-player">--- 생존!</p>
+      <p id="survive-remaining" class="survive-remaining">잔여: 1/5 (20%)</p>
+    </div>
+  </div>
+
+  <!-- ===== 꽝 오버레이 ===== -->
+  <div id="bang-overlay" class="overlay">
+    <div class="overlay-content bang-content">
+      <div class="bang-icon">💥</div>
+      <h2 class="bang-title">빵!!!</h2>
+      <p id="bang-player" class="bang-player">💀 --- 꽝!</p>
+    </div>
+  </div>
+  <!-- ===== 재장전 오버레이 ===== -->
+  <div id="reload-overlay" class="overlay">
+    <div class="overlay-content reload-content">
+      <div class="reload-icon">🔄</div>
+      <h2 class="reload-title">탄창 재장전!</h2>
+      <p class="reload-text">다음 꽝을 찾습니다...</p>
+    </div>
+  </div>
+  <!-- ===== 결과 화면 ===== -->
+  <section id="result-screen" class="screen">
+    <div class="container center-content">
+      <div class="result-announcement">
+        <div class="result-skull">💀</div>
+        <h2 id="result-loser" class="result-loser">---</h2>
+        <p id="result-penalty" class="result-penalty">벌칙: ---</p>
+      </div>
+
+      <div class="card">
+        <h3>게임 결과</h3>
+        <div id="result-list" class="result-list"></div>
+      </div>
+
+      <div class="action-buttons">
+        <button id="retry-btn" class="btn btn-primary">🔄 다시 하기</button>
+        <button id="home-btn" class="btn btn-secondary">🏠 처음으로</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="scripts/bundle.js" defer></script>
+</body>
+</html>
