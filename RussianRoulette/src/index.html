@@ -55,6 +55,11 @@
             <span class="mode-name">데스매치</span>
             <span class="mode-desc">탄환 3발, 50:50</span>
           </button>
+          <button class="mode-card" data-mode="survival" data-bullets="1">
+            <span class="mode-icon">🏆</span>
+            <span class="mode-name">서바이벌</span>
+            <span class="mode-desc">탈락제, 최후 1인</span>
+          </button>
         </div>
       </div>
 
@@ -75,6 +80,12 @@
         <div class="loser-count-selector" id="loser-count-selector">
           <button class="loser-count-btn active" data-count="1">1명</button>
         </div>
+      </div>
+
+      <div class="card">
+        <h2>⏱ 카운트다운</h2>
+        <p class="card-hint">시간 내 방아쇠를 당기세요!</p>
+        <button id="timer-toggle" class="btn btn-secondary timer-toggle-btn">⏱ 타이머 OFF</button>
       </div>
 
       <div id="duplicate-warning" class="warning hidden">⚠️ 중복된 이름이 있습니다!</div>
@@ -127,6 +138,11 @@
         </div>
       </div>
 
+      <div id="timer-bar" class="timer-bar hidden">
+        <div id="timer-fill" class="timer-fill"></div>
+        <span id="timer-text" class="timer-text">10</span>
+      </div>
+
       <button id="trigger-btn" class="btn btn-trigger">🔫 방아쇠 당기기</button>
 
       <div class="player-status-list" id="player-status-list"></div>
@@ -176,6 +192,11 @@
       <div class="action-buttons">
         <button id="retry-btn" class="btn btn-primary">🔄 다시 하기</button>
         <button id="home-btn" class="btn btn-secondary">🏠 처음으로</button>
+      </div>
+
+      <div class="share-buttons">
+        <button id="share-copy-btn" class="btn btn-secondary">📋 결과 복사</button>
+        <button id="share-kakao-btn" class="btn btn-secondary">📨 카카오톡 공유</button>
       </div>
     </div>
   </section>

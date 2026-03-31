@@ -9,10 +9,11 @@
   // [1] Constants
   // ============================================================
   const MODES = {
-    classic:   { name: '클래식',   bullets: 1, respin: false },
-    fair:      { name: '페어',     bullets: 1, respin: true  },
-    hard:      { name: '하드',     bullets: 2, respin: false },
-    deathmatch:{ name: '데스매치', bullets: 3, respin: false },
+    classic:   { name: '클래식',   bullets: 1, respin: false, survival: false },
+    fair:      { name: '페어',     bullets: 1, respin: true,  survival: false },
+    hard:      { name: '하드',     bullets: 2, respin: false, survival: false },
+    deathmatch:{ name: '데스매치', bullets: 3, respin: false, survival: false },
+    survival:  { name: '서바이벌', bullets: 1, respin: false, survival: true  },
   };
   const CHAMBER_SIZE = 6;
   const PLAYER_LIMITS = { min: 2, max: 6 };
@@ -224,12 +225,16 @@
     mode: 'classic',
     bulletCount: 1,
     respin: false,
+    survival: false,
     penalty: '☕ 커피 사기',
     loserCount: 1,
     losers: [],
     turnHistory: [],
     loser: null,
     gameOver: false,
+    timerEnabled: false,
+    timerSeconds: 10,
+    survivalRound: 0,
   };
 
   function resetState() {
@@ -238,12 +243,16 @@
     state.mode = 'classic';
     state.bulletCount = 1;
     state.respin = false;
+    state.survival = false;
     state.penalty = '☕ 커피 사기';
     state.loserCount = 1;
     state.losers = [];
     state.turnHistory = [];
     state.loser = null;
     state.gameOver = false;
+    state.timerEnabled = false;
+    state.timerSeconds = 10;
+    state.survivalRound = 0;
   }
 
   // ============================================================
@@ -272,6 +281,7 @@
       card.addEventListener('click', () => {
         $$('.mode-card').forEach(c => c.classList.remove('active'));
         card.classList.add('active');
+        updateLoserCountSelector();
       });
     });
 
@@ -313,10 +323,12 @@
     const count = $$('#player-list .player-row').length;
     const card = $('#loser-count-card');
     const selector = $('#loser-count-selector');
+    const activeMode = $('.mode-card.active');
+    const isSurvival = activeMode && activeMode.dataset.mode === 'survival';
 
-    if (count < 3) {
+    if (count < 3 || isSurvival) {
       card.style.display = 'none';
-      state.loserCount = 1;
+      state.loserCount = isSurvival ? count - 1 : 1;
       return;
     }
 
@@ -442,12 +454,19 @@
     state.mode = mode;
     state.bulletCount = mc.bullets;
     state.respin = mc.respin;
+    state.survival = mc.survival || false;
     state.penalty = getPenalty();
     state.losers = [];
     state.turnHistory = [];
     state.loser = null;
     state.gameOver = false;
+    state.survivalRound = 0;
     state.phase = 'LOADING';
+
+    // 서바이벌 모드: 꿑 인원 = 참가자 - 1 (최후 1인 생존)
+    if (state.survival) {
+      state.loserCount = players.length - 1;
+    }
 
     showScreen('loading-screen');
 
@@ -474,16 +493,22 @@
     renderPlayerStatusList();
     $('#trigger-btn').disabled = false;
     updateTension();
+    startTimer();
   }
 
   function updateRoundInfo() {
-    const totalPulls = state.turnHistory.length;
     const aliveCount = state.players.length - state.losers.length;
-    const currentRound = aliveCount > 0 ? Math.floor(totalPulls / aliveCount) + 1 : 1;
-    const pullInRound = aliveCount > 0 ? (totalPulls % aliveCount) + 1 : 1;
-    let text = `${currentRound}턴의 ${pullInRound}번째`;
-    if (state.loserCount > 1) {
-      text += ` · 꽝 ${state.losers.length}/${state.loserCount}`;
+    let text;
+    if (state.survival) {
+      text = `서바이벌 R${state.survivalRound + 1} · 생존 ${aliveCount}명`;
+    } else {
+      const totalPulls = state.turnHistory.length;
+      const currentRound = aliveCount > 0 ? Math.floor(totalPulls / aliveCount) + 1 : 1;
+      const pullInRound = aliveCount > 0 ? (totalPulls % aliveCount) + 1 : 1;
+      text = `${currentRound}턴의 ${pullInRound}번째`;
+      if (state.loserCount > 1) {
+        text += ` · 꽝 ${state.losers.length}/${state.loserCount}`;
+      }
     }
     $('#round-info').textContent = text;
   }
@@ -560,6 +585,7 @@
   async function handleTrigger() {
     if (busy) return;
     busy = true;
+    stopTimer();
     $('#trigger-btn').disabled = true;
 
     const currentPlayer = turn.getCurrentPlayer();
@@ -622,6 +648,20 @@
         state.gameOver = true;
         busy = false;
         renderResult();
+      } else if (state.survival) {
+        // 서바이벌: 매 꽝마다 새 라운드 (리스핀)
+        state.survivalRound++;
+        showOverlay('reload-overlay');
+        sound.playSpin();
+        await wait(1800);
+        hideOverlay('reload-overlay');
+
+        chamber.create(state.bulletCount);
+        chamber.spin();
+        turn.nextTurn();
+        state.phase = 'PLAYING';
+        busy = false;
+        renderGame();
       } else {
         const remainingBullets = chamber.getRemainingProbability().bullets;
         if (remainingBullets > 0) {
@@ -655,12 +695,17 @@
     const losers = state.losers;
     const penalty = state.penalty;
 
-    if (losers.length === 1) {
+    if (state.survival) {
+      const winner = state.players.find(p => !losers.includes(p));
+      $('#result-loser').textContent = `🏆 ${winner} 최종 생존!`;
+      $('#result-penalty').textContent = `꽝: ${losers.join(', ')} · 벌칙: ${penalty}`;
+    } else if (losers.length === 1) {
       $('#result-loser').textContent = `${losers[0]}님이 꽝에 걸렸습니다!`;
+      $('#result-penalty').textContent = `벌칙: ${penalty}`;
     } else {
       $('#result-loser').textContent = `${losers.join(', ')} 꽝!`;
+      $('#result-penalty').textContent = `벌칙: ${penalty}`;
     }
-    $('#result-penalty').textContent = `벌칙: ${penalty}`;
 
     const list = $('#result-list');
     list.innerHTML = '';
@@ -677,6 +722,8 @@
         icon = '──'; detail = '미진행'; cls = 'pending';
       } else if (bangEntry) {
         icon = '💀'; detail = `꽝! (${bangEntry.turnNumber}번째)`; cls = 'loser';
+      } else if (state.survival && !losers.includes(name)) {
+        icon = '🏆'; detail = '최종 생존!'; cls = 'survivor';
       } else {
         icon = '✅'; detail = `생존 (${last.turnNumber}번째)`; cls = 'survivor';
       }
@@ -694,7 +741,83 @@
   }
 
   // ============================================================
-  // [15] Init
+  // [15] Share
+  // ============================================================
+  function buildShareText() {
+    const modeName = MODES[state.mode]?.name || state.mode;
+    let lines = [`🔫 러시안 룰렛 — 꽝 뽑기 [${modeName}]`, ''];
+
+    state.players.forEach(name => {
+      const bangEntry = state.turnHistory.find(h => h.player === name && h.result === 'bang');
+      if (bangEntry) {
+        lines.push(`💀 ${name} — 꽝! (${bangEntry.turnNumber}번째)`);
+      } else if (state.survival && !state.losers.includes(name)) {
+        lines.push(`🏆 ${name} — 최종 생존!`);
+      } else {
+        const entries = state.turnHistory.filter(h => h.player === name);
+        const last = entries.length > 0 ? entries[entries.length - 1] : null;
+        lines.push(last ? `✅ ${name} — 생존 (${last.turnNumber}번째)` : `── ${name} — 미진행`);
+      }
+    });
+
+    lines.push('', `📝 벌칙: ${state.penalty}`);
+    return lines.join('\n');
+  }
+
+  function showToast(msg) {
+    let toast = $('#share-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'share-toast';
+      toast.className = 'share-toast';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+
+  // ============================================================
+  // [16] Countdown Timer
+  // ============================================================
+  const TIMER_DURATION = 10;
+  let timerId = null;
+  let timerStart = 0;
+
+  function startTimer() {
+    stopTimer();
+    if (!state.timerEnabled) {
+      $('#timer-bar').classList.add('hidden');
+      return;
+    }
+    $('#timer-bar').classList.remove('hidden');
+    timerStart = Date.now();
+    const fill = $('#timer-fill');
+    const text = $('#timer-text');
+    fill.style.width = '100%';
+    text.textContent = TIMER_DURATION;
+
+    timerId = setInterval(() => {
+      const elapsed = (Date.now() - timerStart) / 1000;
+      const remain = Math.max(TIMER_DURATION - elapsed, 0);
+      const pct = (remain / TIMER_DURATION) * 100;
+      fill.style.width = pct + '%';
+      text.textContent = Math.ceil(remain);
+
+      if (remain <= 0) {
+        stopTimer();
+        // 자동 발사
+        handleTrigger();
+      }
+    }, 100);
+  }
+
+  function stopTimer() {
+    if (timerId) { clearInterval(timerId); timerId = null; }
+  }
+
+  // ============================================================
+  // [17] Init
   // ============================================================
   document.addEventListener('DOMContentLoaded', () => {
     initSetupScreen();
@@ -711,6 +834,60 @@
       soundBtn.classList.toggle('muted', muted);
     });
 
+    // 타이머 토글
+    const timerToggle = $('#timer-toggle');
+    if (timerToggle) {
+      timerToggle.addEventListener('click', () => {
+        state.timerEnabled = !state.timerEnabled;
+        timerToggle.classList.toggle('active', state.timerEnabled);
+        timerToggle.textContent = state.timerEnabled ? '⏱ 타이머 ON' : '⏱ 타이머 OFF';
+      });
+    }
+
+    // 결과 공유 — 클립보드 복사
+    const copyBtn = $('#share-copy-btn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        const text = buildShareText();
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => {
+            showToast('결과가 복사되었습니다!');
+          }).catch(() => {
+            fallbackCopy(text);
+          });
+        } else {
+          fallbackCopy(text);
+        }
+      });
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); showToast('결과가 복사되었습니다!'); }
+      catch (e) { showToast('복사에 실패했습니다.'); }
+      document.body.removeChild(ta);
+    }
+
+    // 결과 공유 — 카카오 / Web Share
+    const kakaoBtn = $('#share-kakao-btn');
+    if (kakaoBtn) {
+      kakaoBtn.addEventListener('click', () => {
+        const text = buildShareText();
+        if (navigator.share) {
+          navigator.share({ title: '러시안 룰렛 결과', text: text }).catch(() => {});
+        } else {
+          // 카카오톡 공유 URL scheme (모바일)
+          const encoded = encodeURIComponent(text);
+          window.open(`https://story.kakao.com/share?url=&text=${encoded}`, '_blank');
+        }
+      });
+    }
+
     // 다시 하기
     $('#retry-btn').addEventListener('click', () => {
       state.turnHistory = [];
@@ -718,6 +895,7 @@
       state.losers = [];
       state.gameOver = false;
       busy = false;
+      stopTimer();
       handleStart();
     });
 
@@ -725,6 +903,7 @@
     $('#home-btn').addEventListener('click', () => {
       resetState();
       busy = false;
+      stopTimer();
       showScreen('setup-screen');
     });
   });
