@@ -463,7 +463,7 @@
     state.survivalRound = 0;
     state.phase = 'LOADING';
 
-    // 서바이벌 모드: 꿑 인원 = 참가자 - 1 (최후 1인 생존)
+    // 서바이벌 모드: 꽝 인원 = 참가자 - 1 (최후 1인 생존)
     if (state.survival) {
       state.loserCount = players.length - 1;
     }
