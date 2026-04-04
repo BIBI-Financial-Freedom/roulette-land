@@ -255,6 +255,13 @@
     state.survivalRound = 0;
   }
 
+  const analytics = window.SiteIntegrations || { track: function () {} };
+  function track(eventName, params) {
+    analytics.track(eventName, Object.assign({
+      game_name: 'russian-roulette'
+    }, params || {}));
+  }
+
   // ============================================================
   // [9] Instances
   // ============================================================
@@ -282,6 +289,10 @@
         $$('.mode-card').forEach(c => c.classList.remove('active'));
         card.classList.add('active');
         updateLoserCountSelector();
+        track('roulette_mode_select', {
+          game_mode: card.dataset.mode,
+          bullet_count: Number(card.dataset.bullets || 1),
+        });
       });
     });
 
@@ -468,6 +479,14 @@
       state.loserCount = players.length - 1;
     }
 
+    track('game_start', {
+      game_mode: state.mode,
+      player_count: state.players.length,
+      bullet_count: state.bulletCount,
+      timer_enabled: state.timerEnabled,
+      loser_count: state.loserCount,
+    });
+
     showScreen('loading-screen');
 
     chamber.create(state.bulletCount);
@@ -589,6 +608,13 @@
     $('#trigger-btn').disabled = true;
 
     const currentPlayer = turn.getCurrentPlayer();
+    const probabilityBeforePull = chamber.getRemainingProbability();
+    track('roulette_trigger_pull', {
+      game_mode: state.mode,
+      current_player: currentPlayer,
+      remaining_chambers: probabilityBeforePull.remaining,
+      remaining_bullets: probabilityBeforePull.bullets,
+    });
 
     // 페어 모드: 매 턴 리스핀
     if (state.respin && chamber.getPullCount() > 0) {
@@ -616,6 +642,11 @@
       const prob = chamber.getRemainingProbability();
       $('#survive-player').textContent = `${currentPlayer} — 생존!`;
       $('#survive-remaining').textContent = `잔여: ${prob.bullets}/${prob.remaining} (${prob.percent}%)`;
+      track('roulette_survive', {
+        game_mode: state.mode,
+        current_player: currentPlayer,
+        remaining_probability: `${prob.bullets}/${prob.remaining}`,
+      });
 
       sound.playClick();
       await anim.playSurviveEffect();
@@ -633,6 +664,12 @@
       turn.eliminate(currentPlayer);
       state.phase = 'BANG';
       renderChamberUI();
+      track('roulette_bang', {
+        game_mode: state.mode,
+        current_player: currentPlayer,
+        penalty_type: state.penalty,
+        loser_count: state.losers.length,
+      });
 
       $('#bang-player').textContent = `💀 ${currentPlayer} 꽝!`;
 
@@ -694,6 +731,12 @@
   function renderResult() {
     const losers = state.losers;
     const penalty = state.penalty;
+    track('game_complete', {
+      game_mode: state.mode,
+      player_count: state.players.length,
+      loser_count: losers.length,
+      penalty_type: penalty,
+    });
 
     if (state.survival) {
       const winner = state.players.find(p => !losers.includes(p));
@@ -841,6 +884,9 @@
         state.timerEnabled = !state.timerEnabled;
         timerToggle.classList.toggle('active', state.timerEnabled);
         timerToggle.textContent = state.timerEnabled ? '⏱ 타이머 ON' : '⏱ 타이머 OFF';
+        track('roulette_timer_toggle', {
+          enabled: state.timerEnabled,
+        });
       });
     }
 
@@ -848,6 +894,9 @@
     const copyBtn = $('#share-copy-btn');
     if (copyBtn) {
       copyBtn.addEventListener('click', () => {
+        track('share_result', {
+          share_type: 'clipboard',
+        });
         const text = buildShareText();
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(text).then(() => {
@@ -877,6 +926,9 @@
     const kakaoBtn = $('#share-kakao-btn');
     if (kakaoBtn) {
       kakaoBtn.addEventListener('click', () => {
+        track('share_result', {
+          share_type: navigator.share ? 'web-share' : 'kakao-story',
+        });
         const text = buildShareText();
         if (navigator.share) {
           navigator.share({ title: '러시안 룰렛 결과', text: text }).catch(() => {});
@@ -890,6 +942,7 @@
 
     // 다시 하기
     $('#retry-btn').addEventListener('click', () => {
+      track('game_restart', {});
       state.turnHistory = [];
       state.loser = null;
       state.losers = [];

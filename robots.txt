@@ -1,0 +1,5 @@
+# Replace the sitemap URL with your final production domain before deployment.
+User-agent: *
+Allow: /
+
+Sitemap: https://example.com/sitemap.xml

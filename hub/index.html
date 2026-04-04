@@ -1,13 +1,37 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-page-key="hub" data-page-path="hub/index.html" data-og-image="shared/assets/og-default.svg">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎡 룰렛 랜드</title>
+  <meta name="google-site-verification" content="REPLACE_WITH_GOOGLE_SITE_VERIFICATION">
+  <meta name="naver-site-verification" content="REPLACE_WITH_NAVER_SITE_VERIFICATION">
+  <title>룰렛 랜드 | 커피내기 룰렛, 벌칙 룰렛, 꽝 뽑기, 랜덤 추첨 웹게임</title>
+  <meta name="description" content="룰렛 랜드는 커피내기, 점심내기, 벌칙 정하기를 브라우저에서 바로 즐길 수 있는 무료 웹게임 모음입니다. 슬롯머신 커피내기 게임과 러시안 룰렛 꽝 뽑기를 모바일과 PC에서 바로 플레이하세요.">
+  <meta name="keywords" content="커피내기, 커피내기 게임, 벌칙 룰렛, 꽝 뽑기, 랜덤 추첨, 점심내기, 회식 게임, 술자리 게임, MT 게임, 사무실 게임, 웹게임, 미니게임, 슬롯머신 게임, 러시안 룰렛 게임, 벌칙 정하기">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="theme-color" content="#0a0a0f">
+  <meta name="application-name" content="룰렛 랜드">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="canonical" href="./index.html">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:site_name" content="룰렛 랜드">
+  <meta property="og:title" content="룰렛 랜드 | 커피내기 룰렛, 벌칙 룰렛, 꽝 뽑기, 랜덤 추첨 웹게임">
+  <meta property="og:description" content="커피내기 슬롯머신과 러시안 룰렛 꽝 뽑기를 한곳에서 즐길 수 있는 무료 랜덤 내기 웹게임 모음입니다.">
+  <meta property="og:url" content="./index.html">
+  <meta property="og:image" content="../shared/assets/og-default.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="룰렛 랜드 | 커피내기 룰렛, 벌칙 룰렛, 꽝 뽑기, 랜덤 추첨 웹게임">
+  <meta name="twitter:description" content="커피내기 슬롯머신과 러시안 룰렛 꽝 뽑기를 한곳에서 즐길 수 있는 무료 랜덤 내기 웹게임 모음입니다.">
+  <meta name="twitter:url" content="./index.html">
+  <meta name="twitter:image" content="../shared/assets/og-default.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../advertisement/styles/integrations.css">
   <link rel="stylesheet" href="styles/hub.css">
+  <script src="../advertisement/scripts/site-config.js"></script>
+  <script src="../advertisement/scripts/site-integrations.js"></script>
 </head>
 <body>
   <div class="hub">
@@ -16,13 +40,15 @@
       <p class="hub-subtitle">내기의 모든 것, 여기서 시작!</p>
     </header>
 
+    <div class="ad-slot ad-slot--banner" data-ad-key="hub_top" data-ad-label="허브 상단 광고"></div>
+
     <main class="game-grid">
       <!-- 커피 슬롯머신 -->
-      <a href="../coffee/src/index.html" class="game-card card-coffee">
+      <a href="../coffee/src/index.html" class="game-card card-coffee" data-game-name="coffee-slot">
         <div class="card-glow"></div>
         <div class="card-icon">🎰</div>
         <div class="card-body">
-          <h2 class="card-title">원강랜드</h2>
+          <h2 class="card-title">슬롯머신</h2>
           <p class="card-desc">커피내기 슬롯머신</p>
           <ul class="card-tags">
             <li>☕ 커피내기</li>
@@ -33,7 +59,7 @@
       </a>
 
       <!-- 러시안 룰렛 -->
-      <a href="../russian-roulette/src/index.html" class="game-card card-roulette">
+      <a href="../russian-roulette/src/index.html" class="game-card card-roulette" data-game-name="russian-roulette">
         <div class="card-glow"></div>
         <div class="card-icon">🔫</div>
         <div class="card-body">
@@ -60,9 +86,24 @@
       </div>
     </main>
 
+    <div class="ad-slot ad-slot--banner" data-ad-key="hub_bottom" data-ad-label="허브 하단 광고"></div>
+
     <footer class="hub-footer">
       <p>© 2026 룰렛 랜드 · 내기는 즐겁게, 결과는 공정하게</p>
+      <p class="hub-legal-links"><a href="../advertisement/privacy-policy.html">개인정보처리방침</a></p>
     </footer>
   </div>
+
+  <script>
+    document.querySelectorAll('[data-game-name]').forEach(card => {
+      card.addEventListener('click', () => {
+        if (window.SiteIntegrations) {
+          window.SiteIntegrations.track('select_game', {
+            game_name: card.dataset.gameName,
+          });
+        }
+      });
+    });
+  </script>
 </body>
 </html>

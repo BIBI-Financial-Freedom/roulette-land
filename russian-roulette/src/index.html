@@ -1,15 +1,39 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-page-key="russian-roulette" data-page-path="russian-roulette/src/index.html" data-og-image="shared/assets/og-default.svg">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🔫 러시안 룰렛 — 꽝 뽑기</title>
+  <meta name="google-site-verification" content="REPLACE_WITH_GOOGLE_SITE_VERIFICATION">
+  <meta name="naver-site-verification" content="REPLACE_WITH_NAVER_SITE_VERIFICATION">
+  <title>러시안 룰렛 꽝 뽑기 | 벌칙 정하기, 랜덤 벌칙, 회식·MT 게임</title>
+  <meta name="description" content="러시안 룰렛 꽝 뽑기는 벌칙 대상, 커피 사는 사람, 점심값 낼 사람을 랜덤하게 정하는 웹게임입니다. 클래식, 페어, 하드, 데스매치, 서바이벌 모드를 모바일과 PC에서 바로 플레이할 수 있습니다.">
+  <meta name="keywords" content="꽝 뽑기, 벌칙 정하기, 랜덤 벌칙, 러시안 룰렛 게임, 회식 게임, MT 게임, 술자리 게임, 점심내기, 커피내기, 벌칙 게임, 랜덤 추첨, 파티 게임, 팀 빌딩 게임, 웹게임">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="theme-color" content="#7f1d1d">
+  <meta name="application-name" content="러시안 룰렛 꽝 뽑기">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="canonical" href="./index.html">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:site_name" content="룰렛 랜드">
+  <meta property="og:title" content="러시안 룰렛 꽝 뽑기 | 벌칙 정하기, 랜덤 벌칙, 회식·MT 게임">
+  <meta property="og:description" content="벌칙 대상, 커피 사는 사람, 점심값 낼 사람을 랜덤하게 정하는 웹게임입니다. 5가지 모드를 모바일과 PC에서 바로 플레이할 수 있습니다.">
+  <meta property="og:url" content="./index.html">
+  <meta property="og:image" content="../../shared/assets/og-default.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="러시안 룰렛 꽝 뽑기 | 벌칙 정하기, 랜덤 벌칙, 회식·MT 게임">
+  <meta name="twitter:description" content="벌칙 대상, 커피 사는 사람, 점심값 낼 사람을 랜덤하게 정하는 웹게임입니다. 5가지 모드를 모바일과 PC에서 바로 플레이할 수 있습니다.">
+  <meta name="twitter:url" content="./index.html">
+  <meta name="twitter:image" content="../../shared/assets/og-default.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../advertisement/styles/integrations.css">
   <link rel="stylesheet" href="styles/main.css">
   <link rel="stylesheet" href="styles/animations.css">
   <link rel="stylesheet" href="styles/responsive.css">
+  <script src="../../advertisement/scripts/site-config.js"></script>
+  <script src="../../advertisement/scripts/site-integrations.js"></script>
 </head>
 <body>
   <!-- ===== 글로벌 네비게이션 ===== -->
@@ -91,6 +115,8 @@
 
       <div id="duplicate-warning" class="warning hidden">⚠️ 중복된 이름이 있습니다!</div>
       <button id="start-btn" class="btn btn-primary btn-large" disabled>🔫 게임 시작!</button>
+      <div class="ad-slot ad-slot--mobile" data-ad-key="roulette_setup" data-ad-label="러시안 룰렛 시작 화면 광고"></div>
+      <p class="legal-link-row"><a href="../../advertisement/privacy-policy.html">개인정보처리방침</a></p>
     </div>
   </section>
 
@@ -121,6 +147,8 @@
         <div id="round-info" class="round-info">라운드 1</div>
       </header>
 
+      <div class="ad-slot ad-slot--mobile" data-ad-key="roulette_game_top" data-ad-label="러시안 룰렛 본게임 상단 광고"></div>
+
       <div class="current-turn">
         <span class="turn-label">현재 차례</span>
         <span id="current-player" class="turn-player">🎯 ---</span>
@@ -147,6 +175,8 @@
       <button id="trigger-btn" class="btn btn-trigger">🔫 방아쇠 당기기</button>
 
       <div class="player-status-list" id="player-status-list"></div>
+
+      <div class="ad-slot ad-slot--mobile" data-ad-key="roulette_game_bottom" data-ad-label="러시안 룰렛 본게임 하단 광고"></div>
     </div>
   </section>
 
@@ -189,6 +219,8 @@
         <h3>게임 결과</h3>
         <div id="result-list" class="result-list"></div>
       </div>
+
+      <div class="ad-slot ad-slot--result" data-ad-key="roulette_result" data-ad-label="러시안 룰렛 결과 화면 광고"></div>
 
       <div class="action-buttons">
         <button id="retry-btn" class="btn btn-primary">🔄 다시 하기</button>

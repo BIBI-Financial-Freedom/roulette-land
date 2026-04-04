@@ -1,15 +1,37 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-page-key="coffee" data-page-path="coffee/src/index.html" data-og-image="shared/assets/og-default.svg">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
-  <meta name="description" content="원강랜드 — 커피내기를 재미있게 결정하는 슬롯머신 게임">
+  <meta name="google-site-verification" content="REPLACE_WITH_GOOGLE_SITE_VERIFICATION">
+  <meta name="naver-site-verification" content="REPLACE_WITH_NAVER_SITE_VERIFICATION">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://pagead2.googlesyndication.com https://t1.daumcdn.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://t1.daumcdn.net; frame-src https:; font-src 'self' data: https://fonts.gstatic.com;">
+  <title>슬롯머신 | 커피내기 슬롯머신, 점심내기 룰렛 대체 웹게임</title>
+  <meta name="description" content="슬롯머신은 커피내기와 점심값 내기를 재미있게 정하는 슬롯머신형 웹게임입니다. 참가자 이름을 입력하고 슬롯을 돌려 꼴등 또는 1등이 커피를 사는 규칙으로 모바일과 PC에서 바로 즐길 수 있습니다.">
+  <meta name="keywords" content="커피내기, 커피내기 슬롯머신, 커피 사는 사람 정하기, 점심내기 게임, 벌칙 슬롯, 랜덤 벌칙, 사무실 내기, 팀 게임, 슬롯머신 웹게임, 커피값 내기, 점심값 내기, 내기 게임">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
   <meta name="theme-color" content="#6F4E37">
-  <title>원강랜드 — 커피내기 슬롯머신</title>
+  <meta name="application-name" content="슬롯머신">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="canonical" href="./index.html">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:site_name" content="룰렛 랜드">
+  <meta property="og:title" content="슬롯머신 | 커피내기 슬롯머신, 점심내기 룰렛 대체 웹게임">
+  <meta property="og:description" content="커피내기와 점심값 내기를 재미있게 정하는 슬롯머신형 웹게임입니다. 참가자 이름을 입력하고 모바일과 PC에서 바로 플레이할 수 있습니다.">
+  <meta property="og:url" content="./index.html">
+  <meta property="og:image" content="../../shared/assets/og-default.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="슬롯머신 | 커피내기 슬롯머신, 점심내기 룰렛 대체 웹게임">
+  <meta name="twitter:description" content="커피내기와 점심값 내기를 재미있게 정하는 슬롯머신형 웹게임입니다. 참가자 이름을 입력하고 모바일과 PC에서 바로 플레이할 수 있습니다.">
+  <meta name="twitter:url" content="./index.html">
+  <meta name="twitter:image" content="../../shared/assets/og-default.svg">
+  <link rel="stylesheet" href="../../advertisement/styles/integrations.css">
   <link rel="stylesheet" href="styles/main.css">
   <link rel="stylesheet" href="styles/slot-machine.css">
   <link rel="stylesheet" href="styles/animations.css">
+  <script src="../../advertisement/scripts/site-config.js"></script>
+  <script src="../../advertisement/scripts/site-integrations.js"></script>
 </head>
 <body>
   <!-- ===== 허브 홈 ===== -->
@@ -20,7 +42,7 @@
       <div class="container">
         <header class="title-area">
           <div class="logo" aria-hidden="true">🎰</div>
-          <h1>원강랜드</h1>
+          <h1>슬롯머신</h1>
           <p class="subtitle">커피내기 슬롯머신</p>
         </header>
 
@@ -51,6 +73,9 @@
           </div>
           <button id="start-game-btn" class="btn btn-primary" disabled>🎮 게임 시작!</button>
         </div>
+
+        <div class="ad-slot ad-slot--mobile" data-ad-key="coffee_start" data-ad-label="슬롯머신 시작 화면 광고"></div>
+        <p class="legal-link-row"><a href="../../advertisement/privacy-policy.html">개인정보처리방침</a></p>
       </div>
     </section>
 
@@ -62,6 +87,8 @@
           <span id="game-mode-badge" class="mode-badge">꼴등이 사기</span>
           <span class="turn-info">차례: <strong id="current-player-name">—</strong> (<span id="turn-progress">0/0</span>)</span>
         </div>
+
+        <div class="ad-slot ad-slot--mobile" data-ad-key="coffee_game_top" data-ad-label="슬롯머신 본게임 상단 광고"></div>
 
         <div class="score-ref">
           <span class="score-ref-item">☕<small>S +5</small></span>
@@ -106,6 +133,8 @@
           <h3>현재 스코어</h3>
           <ul id="score-list"></ul>
         </div>
+
+        <div class="ad-slot ad-slot--mobile" data-ad-key="coffee_game_bottom" data-ad-label="슬롯머신 본게임 하단 광고"></div>
       </div>
     </section>
 
@@ -144,6 +173,8 @@
         <div class="loser-announce" id="loser-announce">
           <p class="loser-text">☕ <strong id="loser-name">—</strong>님이<br>커피를 삽니다!</p>
         </div>
+
+        <div class="ad-slot ad-slot--result" data-ad-key="coffee_result" data-ad-label="슬롯머신 결과 화면 광고"></div>
 
         <div class="action-area">
           <button id="restart-btn" class="btn btn-primary">🔄 다시 하기</button>
@@ -344,6 +375,14 @@
       muteBtn: $('#mute-btn'),
     };
 
+    const analytics = window.SiteIntegrations || { track: function () {} };
+    function track(eventName, params) {
+      analytics.track(eventName, Object.assign({
+        game_name: 'coffee-slot',
+        buy_rule: state.buyRule === 'first' ? 'first_place_buys' : 'last_place_buys',
+      }, params || {}));
+    }
+
     function showScreen(name) {
       const map = { start: 'start-screen', game: 'game-screen', suddenDeath: 'sudden-death-screen', result: 'result-screen' };
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -494,6 +533,9 @@
         opts[1].classList.remove('active');
         opts[0].classList.add('active');
       }
+      track('coffee_rule_change', {
+        rule_type: state.buyRule === 'first' ? 'first_place_buys' : 'last_place_buys',
+      });
     });
 
     // ========================================
@@ -506,6 +548,10 @@
       state.results = {};
       state.isSuddenDeath = false;
       state.lastRankings = null;
+      track('game_start', {
+        player_count: state.players.length,
+        game_mode: state.buyRule === 'first' ? 'first_place_buys' : 'last_place_buys',
+      });
       startGameRound();
     });
 
@@ -673,6 +719,11 @@
 
     el.spinBtn.addEventListener('click', async () => {
       el.spinBtn.disabled = true;
+      track('coffee_spin', {
+        player_count: state.playerOrder.length,
+        turn_index: state.currentIndex + 1,
+        stage: 'main',
+      });
       const symbols = spin();
       const result = evaluate(symbols);
       const idx = state.playerOrder[state.currentIndex];
@@ -737,6 +788,10 @@
       state.suddenDeathPlayers = tiedPlayers.map(p => ({
         playerIndex: p.playerIndex, name: p.name, result: p.result, sdResult: null
       }));
+      track('coffee_sudden_death', {
+        tie_count: tiedPlayers.length,
+        sudden_death_round: 1,
+      });
       showScreen('suddenDeath');
       renderSuddenDeath();
     }
@@ -759,6 +814,12 @@
     el.sdSpinBtn.addEventListener('click', async () => {
       el.sdSpinBtn.disabled = true;
       const player = state.suddenDeathPlayers[state.sdCurrentIndex];
+      track('coffee_spin', {
+        player_count: state.suddenDeathPlayers.length,
+        turn_index: state.sdCurrentIndex + 1,
+        stage: 'sudden_death',
+        sudden_death_round: state.suddenDeathRound,
+      });
       const symbols = sdSpin();
       const result = evaluate(symbols);
 
@@ -835,6 +896,11 @@
     function showResult(rankings, loserNames) {
       showScreen('result');
       state.lastRankings = rankings;
+      track('game_complete', {
+        player_count: state.players.length,
+        loser_count: loserNames.length,
+        game_mode: state.buyRule === 'first' ? 'first_place_buys' : 'last_place_buys',
+      });
 
       // 모드 뱃지
       el.resultBadge.textContent = getModeText();
@@ -884,6 +950,7 @@
     // ========================================
 
     $('#restart-btn').addEventListener('click', () => {
+      track('game_restart', {});
       state.currentIndex = 0;
       state.results = {};
       state.isSuddenDeath = false;
@@ -898,6 +965,9 @@
     });
 
     $('#share-btn').addEventListener('click', async () => {
+      track('share_result', {
+        share_type: navigator.share ? 'native-share' : 'clipboard',
+      });
       const rankings = state.lastRankings || state.playerOrder.map(pIdx => ({
         name: state.players[pIdx], result: state.results[pIdx]
       })).sort(rankingCompare);
@@ -911,7 +981,7 @@
       );
       const loserName = el.loserName.textContent;
       const text = [
-        '🎰 원강랜드 커피내기 결과!',
+        '🎰 슬롯머신 커피내기 결과!',
         '모드: ' + modeLabel,
         '━━━━━━━━━━━━━',
       ].concat(lines).concat([
@@ -920,7 +990,7 @@
       ]).join('\n');
 
       try {
-        if (navigator.share) await navigator.share({ title: '원강랜드', text: text });
+        if (navigator.share) await navigator.share({ title: '슬롯머신', text: text });
         else { await navigator.clipboard.writeText(text); alert('결과가 클립보드에 복사되었습니다!'); }
       } catch (e) { /* 취소 */ }
     });

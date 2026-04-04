@@ -233,6 +233,16 @@ body::before {
   color: var(--text-dim);
 }
 
+.hub-legal-links {
+  margin-top: 10px;
+}
+
+.hub-legal-links a {
+  color: var(--text-dim);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 480px) {
   .hub {
