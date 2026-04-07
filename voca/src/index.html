@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko" data-page-key="voca" data-page-path="voca/src/index.html">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📖 문해력 바닥 인증기 | 당신의 어휘력은 몇 세?</title>
+  <meta name="description" content="당신의 어휘력은 몇 세 수준일까요? 텍스트를 입력하면 AI가 어휘 연령을 분석합니다. 결과 카드를 공유해 보세요!">
+  <meta name="keywords" content="문해력 테스트, 어휘력 테스트, 어휘 연령, 문해력 바닥, 문해력 인증, 어휘 빈곤, 바이럴 테스트">
+  <meta name="robots" content="index,follow">
+  <meta name="theme-color" content="#0A0A0F">
+  <link rel="canonical" href="./index.html">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:site_name" content="룰렛 랜드">
+  <meta property="og:title" content="📖 문해력 바닥 인증기">
+  <meta property="og:description" content="당신의 어휘력은 몇 세 수준일까요?">
+  <meta property="og:url" content="./index.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="📖 문해력 바닥 인증기">
+  <meta name="twitter:description" content="당신의 어휘력은 몇 세 수준일까요?">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../advertisement/styles/integrations.css">
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/animations.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+  <script src="../../advertisement/scripts/site-config.js"></script>
+  <script src="../../advertisement/scripts/site-integrations.js"></script>
+  <script src="scripts/app.js" defer></script>
+</head>
+<body>
+  <div class="app">
+
+    <!-- ===== STEP 1: 닉네임 + 주제 선택 ===== -->
+    <section id="screen-step1" class="screen active">
+      <a href="../../hub/index.html" class="back-link">← 룰렛 랜드</a>
+      <header class="app-header">
+        <h1 class="app-title"><span class="neon-cyan">📖 문해력 바닥 인증기</span></h1>
+        <p class="app-subtitle">VOCABULARY POVERTY TEST</p>
+      </header>
+
+      <form id="step1-form" class="step-form" autocomplete="off" novalidate>
+        <div class="form-section">
+          <label for="nickname" class="form-label">👤 어휘 빈곤자 이름</label>
+          <input type="text" id="nickname" class="neon-input" placeholder="닉네임 입력 (1~10자)" maxlength="10" required>
+        </div>
+
+        <div class="form-section">
+          <label class="form-label">📂 주제를 선택하세요</label>
+          <div class="topic-grid" id="topic-grid">
+            <button type="button" class="topic-card" data-topic="excuse">
+              <span class="topic-icon">🙏</span>
+              <span class="topic-name">변명의 달인</span>
+              <span class="topic-hint">최근에 한 변명을 써 보세요</span>
+            </button>
+            <button type="button" class="topic-card" data-topic="money">
+              <span class="topic-icon">💰</span>
+              <span class="topic-name">돈 빌리기</span>
+              <span class="topic-hint">친구에게 돈 빌려달라는 카톡</span>
+            </button>
+            <button type="button" class="topic-card" data-topic="breakup">
+              <span class="topic-icon">💔</span>
+              <span class="topic-name">이별 통보</span>
+              <span class="topic-hint">헤어지자는 말을 써 보세요</span>
+            </button>
+            <button type="button" class="topic-card" data-topic="late">
+              <span class="topic-icon">📱</span>
+              <span class="topic-name">지각 변명</span>
+              <span class="topic-hint">지각했을 때 보낼 카톡</span>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="btn-next" class="btn-primary" disabled>다음 단계 →</button>
+      </form>
+    </section>
+
+    <!-- ===== STEP 2: 텍스트 입력 ===== -->
+    <section id="screen-step2" class="screen">
+      <button type="button" id="btn-back" class="back-link">← 주제 다시 선택</button>
+      <header class="app-header">
+        <h1 class="app-title"><span class="neon-cyan">📖 문해력 바닥 인증기</span></h1>
+        <p class="app-subtitle" id="step2-topic-label">주제: 변명의 달인</p>
+      </header>
+
+      <form id="step2-form" class="step-form" autocomplete="off" novalidate>
+        <div class="form-section">
+          <label for="user-text" class="form-label">✍️ 자유롭게 써 보세요 <span class="label-hint">(최소 30자)</span></label>
+          <textarea id="user-text" class="neon-textarea" rows="8" maxlength="500" placeholder="여기에 입력하세요..." required></textarea>
+          <div class="char-counter"><span id="char-count">0</span> / 500자 <span id="char-min">(최소 30자)</span></div>
+        </div>
+
+        <button type="submit" id="btn-analyze" class="btn-primary" disabled>🔍 분석하기</button>
+      </form>
+    </section>
+
+    <!-- ===== LOADING ===== -->
+    <section id="screen-loading" class="screen">
+      <header class="app-header">
+        <h1 class="app-title"><span class="neon-cyan">📖 문해력 바닥 인증기</span></h1>
+      </header>
+      <div class="loading-container">
+        <div class="loading-book">📚</div>
+        <h2 id="loading-title" class="loading-title">어휘 창고를 뒤지는 중...</h2>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <p id="progress-text" class="progress-text">0% 분석 완료</p>
+        <p id="loading-msg" class="loading-msg">"님의 텍스트를 입수했습니다..."</p>
+      </div>
+    </section>
+
+    <!-- ===== RESULT ===== -->
+    <section id="screen-result" class="screen">
+      <header class="app-header app-header--result">
+        <h1 class="app-title"><span class="neon-cyan">📖 문해력 바닥 인증기</span></h1>
+      </header>
+
+      <div class="result-card" id="result-card">
+        <div class="card-header-label">📋 어휘력 진단서</div>
+        <p class="result-user"><span id="result-nickname"></span> 님의 어휘 연령</p>
+
+        <div class="age-display">
+          <span class="age-number neon-magenta" id="result-age">0</span>
+          <span class="age-unit">세</span>
+        </div>
+
+        <div class="score-section">
+          <span class="score-label">문해력 점수</span>
+          <div class="gauge-bar">
+            <div class="gauge-fill" id="gauge-fill"></div>
+          </div>
+          <span class="gauge-number neon-cyan" id="gauge-number">0</span><span class="gauge-unit">/100</span>
+        </div>
+
+        <div class="badges">
+          <span class="badge badge-era">🏷️ <span id="result-era">2010년대</span></span>
+          <span class="badge badge-keyword">🏷️ <span id="result-keyword">복사붙여넣기급</span></span>
+        </div>
+
+        <hr class="divider">
+
+        <div class="repeated-section">
+          <h3 class="section-title">🔁 가장 많이 반복한 단어</h3>
+          <div class="word-cards" id="word-cards">
+            <div class="word-card" id="word-1">
+              <span class="word-text"></span>
+              <span class="word-count"></span>
+            </div>
+            <div class="word-card" id="word-2">
+              <span class="word-text"></span>
+              <span class="word-count"></span>
+            </div>
+            <div class="word-card" id="word-3">
+              <span class="word-text"></span>
+              <span class="word-count"></span>
+            </div>
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <div class="analysis-section">
+          <h3 class="section-title">📌 팩폭 분석</h3>
+          <p class="analysis-text" id="result-analysis"></p>
+        </div>
+
+        <div class="watermark">📖 문해력 바닥 인증기</div>
+      </div>
+
+      <div class="action-buttons">
+        <button id="btn-download" class="btn-action btn-download">📥 이미지 저장</button>
+        <button id="btn-share" class="btn-action btn-share">🔗 공유하기</button>
+      </div>
+      <button id="btn-retry" class="btn-retry">🔄 다시 해보기</button>
+    </section>
+
+    <div id="toast" class="toast"></div>
+  </div>
+</body>
+</html>

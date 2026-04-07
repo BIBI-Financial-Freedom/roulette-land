@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>💸 디지털 거지 시뮬레이터 — 파산 예측기</title>
+  <meta name="description" content="쓸데없는 소비 3개를 입력하면 AI가 님의 파산 날짜를 예언해 드립니다. 디지털 거지 시뮬레이터로 나의 거지력을 측정하세요!">
+  <meta name="keywords" content="디지털 거지, 파산 예측기, 소비 분석, 거지력 테스트, 팩폭, 바이럴 테스트">
+  <meta name="theme-color" content="#0D0D0D">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:site_name" content="룰렛 랜드">
+  <meta property="og:title" content="💸 디지털 거지 시뮬레이터 — 파산 예측기">
+  <meta property="og:description" content="쓸데없는 소비 3개를 입력하면 AI가 님의 파산 날짜를 예언해 드립니다 🪦">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/animations.css">
+</head>
+<body>
+  <div class="app" id="app">
+
+    <!-- ========== 입력 화면 ========== -->
+    <section class="screen screen--input active" id="screen-input">
+      <header class="app-header">
+        <a href="../../hub/index.html" class="back-link">← 룰렛 랜드</a>
+        <h1 class="app-title neon-green">💸 디지털 거지 시뮬레이터</h1>
+        <p class="app-subtitle">── 파산 예측기 ──</p>
+        <p class="app-tagline">"쓸데없는 소비를 고백하세요"</p>
+      </header>
+
+      <form class="input-form" id="input-form" autocomplete="off">
+        <div class="form-section">
+          <label class="form-label">👤 파산 예정자 이름</label>
+          <input
+            type="text"
+            class="input-field"
+            id="nickname"
+            placeholder="파산 예정자 이름"
+            maxlength="10"
+            required
+          >
+        </div>
+
+        <div class="form-section">
+          <label class="form-label">💳 쓸데없는 소비 TOP 3</label>
+
+          <div class="expense-group">
+            <span class="expense-num">1</span>
+            <input
+              type="text"
+              class="input-field input-expense"
+              id="expense1"
+              placeholder="예: 탕후루 3만 원어치"
+              maxlength="50"
+              required
+            >
+          </div>
+
+          <div class="expense-group">
+            <span class="expense-num">2</span>
+            <input
+              type="text"
+              class="input-field input-expense"
+              id="expense2"
+              placeholder="예: 안 입는 요가복"
+              maxlength="50"
+              required
+            >
+          </div>
+
+          <div class="expense-group">
+            <span class="expense-num">3</span>
+            <input
+              type="text"
+              class="input-field input-expense"
+              id="expense3"
+              placeholder="예: 쓸데없는 구독 서비스"
+              maxlength="50"
+              required
+            >
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" id="btn-submit">
+          🔮 파산 예언 받기
+        </button>
+      </form>
+    </section>
+
+    <!-- ========== 로딩 화면 ========== -->
+    <section class="screen screen--loading" id="screen-loading">
+      <div class="loading-content">
+        <div class="loading-icon">💸💸💸</div>
+        <p class="loading-title" id="loading-title">통장 잔고를 분석 중...</p>
+
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <p class="progress-text" id="progress-text">0% 분석 완료</p>
+
+        <p class="loading-msg" id="loading-msg">"님의 쓸데없는 소비 내역을 조사하는 중..."</p>
+
+        <div class="balance-counter" id="balance-counter">
+          <span class="balance-label">통장 잔고</span>
+          <span class="balance-value" id="balance-value">₩3,000,000</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 결과 화면 ========== -->
+    <section class="screen screen--result" id="screen-result">
+      <header class="app-header app-header--result">
+        <h1 class="app-title neon-green">💸 디지털 거지 시뮬레이터</h1>
+      </header>
+
+      <!-- 캡처 영역 -->
+      <div class="result-card" id="result-card">
+        <div class="result-card-inner">
+          <h2 class="result-heading neon-pink">☠️ 파 산 예 언 서</h2>
+
+          <div class="result-name-section">
+            <p class="result-name"><span id="result-nickname">이현민</span> 님의</p>
+            <p class="result-label">파산 예정일</p>
+          </div>
+
+          <div class="result-date-box">
+            <span class="result-date neon-pink" id="result-date">2026년 11월</span>
+          </div>
+
+          <div class="gauge-section">
+            <p class="gauge-label">거지력</p>
+            <div class="gauge-bar">
+              <div class="gauge-fill" id="gauge-fill" style="width:0%"></div>
+            </div>
+            <p class="gauge-value"><span class="gauge-number" id="gauge-number">0</span>%</p>
+          </div>
+
+          <div class="result-divider"></div>
+
+          <div class="result-description">
+            <p class="result-desc-text" id="result-description">
+              "한강 대교 밑에서 무료 와이파이를 구걸하는 '사이버 각설이'로 전락할 확률이 98%입니다."
+            </p>
+          </div>
+
+          <div class="result-divider"></div>
+
+          <div class="roast-section">
+            <h3 class="roast-heading">📌 소비 팩폭 리포트</h3>
+            <div class="roast-item" id="roast-1">
+              <span class="roast-icon">💳</span>
+              <p class="roast-text"></p>
+            </div>
+            <div class="roast-item" id="roast-2">
+              <span class="roast-icon">💳</span>
+              <p class="roast-text"></p>
+            </div>
+            <div class="roast-item" id="roast-3">
+              <span class="roast-icon">💳</span>
+              <p class="roast-text"></p>
+            </div>
+          </div>
+
+          <div class="result-divider"></div>
+          <p class="result-watermark">💸 디지털 거지 시뮬레이터 · 룰렛 랜드</p>
+        </div>
+      </div>
+
+      <!-- 액션 버튼 -->
+      <div class="action-buttons">
+        <button class="btn-action btn-download" id="btn-download">📥 이미지 저장</button>
+        <button class="btn-action btn-share" id="btn-share">🔗 공유하기</button>
+      </div>
+      <button class="btn-retry" id="btn-retry">🔄 다시 해보기</button>
+
+      <!-- 토스트 -->
+      <div class="toast" id="toast">링크가 복사되었습니다!</div>
+    </section>
+
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+  <script src="scripts/app.js" defer></script>
+</body>
+</html>

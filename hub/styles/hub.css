@@ -11,6 +11,10 @@
   --coffee-glow: rgba(111, 78, 55, 0.4);
   --roulette: #c0392b;
   --roulette-glow: rgba(192, 57, 43, 0.4);
+  --poor: #39FF14;
+  --poor-glow: rgba(57, 255, 20, 0.35);
+  --voca: #00F0FF;
+  --voca-glow: rgba(0, 240, 255, 0.35);
   --coming: #555;
   --radius: 16px;
   --transition: 0.3s ease;
@@ -42,9 +46,9 @@ body::before {
 .hub {
   position: relative;
   z-index: 1;
-  max-width: 800px;
+  max-width: 960px;
   margin: 0 auto;
-  padding: 60px 20px 40px;
+  padding: 60px 24px 40px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -83,9 +87,27 @@ body::before {
 /* ===== Game Grid ===== */
 .game-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
   flex: 1;
+}
+
+.row-label {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 4px 0 2px;
+  border-bottom: 1px solid var(--border);
+}
+
+.row-label + .row-label {
+  margin-top: 8px;
 }
 
 /* ===== Game Card ===== */
@@ -138,8 +160,18 @@ body::before {
   background: radial-gradient(ellipse, var(--roulette-glow), transparent 70%);
 }
 
+.card-poor .card-glow {
+  background: radial-gradient(ellipse, var(--poor-glow), transparent 70%);
+}
+
+.card-voca .card-glow {
+  background: radial-gradient(ellipse, var(--voca-glow), transparent 70%);
+}
+
 .card-coffee:hover { border-color: var(--coffee); }
 .card-roulette:hover { border-color: var(--roulette); }
+.card-poor:hover { border-color: var(--poor); }
+.card-voca:hover { border-color: var(--voca); }
 
 /* Icon */
 .card-icon {
@@ -244,7 +276,7 @@ body::before {
 }
 
 /* ===== Responsive ===== */
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .hub {
     padding: 40px 16px 32px;
   }
@@ -253,6 +285,13 @@ body::before {
     font-size: 2rem;
   }
 
+  .game-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 400px) {
   .game-grid {
     grid-template-columns: 1fr;
   }

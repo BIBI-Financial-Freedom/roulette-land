@@ -1,0 +1,196 @@
+/* ===== 디지털 거지 시뮬레이터 — Animations ===== */
+
+/* --- Screen Transitions --- */
+.screen {
+  animation: none;
+}
+
+.screen.fade-in {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.screen.fade-out {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+/* --- Loading Icon Bounce --- */
+.loading-icon {
+  animation: bounce 1.2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+/* --- Progress Bar Shimmer --- */
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+.progress-fill {
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* --- Loading Message Fade --- */
+.loading-msg {
+  animation: msgPulse 2s ease-in-out infinite;
+}
+
+@keyframes msgPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* --- Balance Counter Flash --- */
+@keyframes balanceFlash {
+  0% { color: var(--neon-pink); transform: scale(1); }
+  50% { color: var(--neon-yellow); transform: scale(1.05); }
+  100% { color: var(--neon-pink); transform: scale(1); }
+}
+
+.balance-value.flash {
+  animation: balanceFlash 0.3s ease;
+}
+
+/* --- Result Card Enter --- */
+.result-card.animate-in {
+  animation: cardEnter 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes cardEnter {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(30px);
+  }
+  60% {
+    transform: scale(1.02) translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* --- Result Screen Glitch --- */
+.screen--result.glitch-in {
+  animation: glitchIn 0.5s ease forwards;
+}
+
+@keyframes glitchIn {
+  0% {
+    opacity: 0;
+    filter: blur(8px) hue-rotate(90deg);
+    transform: scale(1.1);
+  }
+  30% {
+    opacity: 0.7;
+    filter: blur(2px) hue-rotate(0deg);
+    transform: scale(0.98) skewX(2deg);
+  }
+  60% {
+    filter: blur(0) hue-rotate(0deg);
+    transform: scale(1.01) skewX(-1deg);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0) hue-rotate(0deg);
+    transform: scale(1) skewX(0deg);
+  }
+}
+
+/* --- Roast Item Stagger --- */
+.roast-item {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+.roast-item.animate-in {
+  animation: roastSlideIn 0.4s ease forwards;
+}
+
+@keyframes roastSlideIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* --- Gauge Number Count-Up --- */
+.gauge-value {
+  transition: color 0.3s;
+}
+
+/* --- Neon Glow Pulse (for CTA button idle) --- */
+.btn-primary {
+  animation: neonPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes neonPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 15px rgba(57, 255, 20, 0.4),
+      0 0 30px rgba(57, 255, 20, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 20px rgba(57, 255, 20, 0.6),
+      0 0 40px rgba(57, 255, 20, 0.3),
+      0 0 60px rgba(57, 255, 20, 0.1);
+  }
+}
+
+/* --- Shake effect (result card after enter) --- */
+@keyframes shakeLight {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+
+.result-card.shake {
+  animation: shakeLight 0.4s ease;
+}
+
+/* --- Toast enter/exit handled via .show class in main.css --- */
