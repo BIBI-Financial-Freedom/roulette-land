@@ -367,9 +367,13 @@
     try {
       await document.fonts.ready;
 
-      // html2canvas가 CSS 애니메이션 최종 상태를 못 읽으므로 캡처 전 opacity 강제 설정
-      const roastItems = card.querySelectorAll('.roast-item');
-      roastItems.forEach((el) => { el.style.opacity = '1'; el.style.transform = 'none'; });
+      // html2canvas가 CSS 애니메이션 최종 상태를 못 읽으므로 캔처 전 애니메이션 제거
+      const animatedEls = card.querySelectorAll('.roast-item, .animate-in');
+      animatedEls.forEach((el) => {
+        el.style.animation = 'none';
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+      });
 
       const canvas = await html2canvas(card, {
         scale: 2,
@@ -386,7 +390,11 @@
 
       canvas.toBlob((blob) => {
         // 캡처 후 인라인 스타일 복원
-        roastItems.forEach((el) => { el.style.opacity = ''; el.style.transform = ''; });
+        animatedEls.forEach((el) => {
+          el.style.animation = '';
+          el.style.opacity = '';
+          el.style.transform = '';
+        });
         if (!blob) {
           showToast('이미지 생성에 실패했습니다');
           return;

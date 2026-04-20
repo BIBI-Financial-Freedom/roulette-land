@@ -133,9 +133,23 @@
     if (userText.value.length < 30) return;
 
     showScreen(screenLoading);
-    await runLoadingSequence();
 
-    currentResult = generateFallbackResult(currentNickname, selectedTopic, userText.value);
+    // AI 호출 — 완료 신호를 로딩 애니메이션에 전달
+    let signalAIDone;
+    const aiDoneSignal = new Promise((resolve) => { signalAIDone = resolve; });
+
+    const aiPromise = callAI(currentNickname, selectedTopic, userText.value).then((result) => {
+      signalAIDone();
+      return result;
+    });
+
+    const [aiResult] = await Promise.all([
+      aiPromise,
+      runLoadingSequence(aiDoneSignal),
+    ]);
+
+    // AI 성공 시 사용, 실패 시 폴백
+    currentResult = aiResult || generateFallbackResult(currentNickname, selectedTopic, userText.value);
     renderResult(currentNickname, currentResult);
   });
 
@@ -149,28 +163,133 @@
     '"국어사전이 울고 있습니다..."',
   ];
 
-  function runLoadingSequence() {
+  function runLoadingSequence(aiDoneSignal) {
     let progress = 0;
     let msgIdx = 0;
+    let aiDone = false;
+
+    aiDoneSignal.then(() => { aiDone = true; });
+
     return new Promise((resolve) => {
       const tick = setInterval(() => {
-        progress += Math.random() * 10 + 3;
-        if (progress > 95) progress = 95;
+        if (aiDone) {
+          progress += (100 - progress) * 0.3;
+          if (progress > 99.5) progress = 100;
+        } else {
+          progress += Math.random() * 6 + 1;
+          if (progress > 85) progress = 85;
+        }
         progressFill.style.width = Math.round(progress) + '%';
         progressText.textContent = Math.round(progress) + '% 분석 완료';
         if (Math.random() < 0.4 && msgIdx < LOADING_MESSAGES.length) {
           loadingMsg.textContent = LOADING_MESSAGES[msgIdx++];
         }
+        if (progress >= 100) {
+          clearInterval(tick);
+          progressFill.style.width = '100%';
+          progressText.textContent = '100% 분석 완료';
+          loadingTitle.textContent = '분석 완료!';
+          setTimeout(resolve, 500);
+        }
       }, 280);
-
-      setTimeout(() => {
-        clearInterval(tick);
-        progressFill.style.width = '100%';
-        progressText.textContent = '100% 분석 완료';
-        loadingTitle.textContent = '분석 완료!';
-        setTimeout(resolve, 500);
-      }, 2800);
     });
+  }
+
+  // ── LM Studio AI Engine ──
+  const LM_STUDIO_URL = 'http://localhost:1234/v1/chat/completions';
+  const LM_STUDIO_MODEL = 'gemma-4-e4b-it-heretic';
+  const API_TIMEOUT = 15000;
+
+  function buildPrompt(nickname, topic, text) {
+    const topicName = TOPICS[topic]?.name || '자유';
+    return `너는 날카로운 국어 선생님이야. 학생의 어휘력을 날카롭게 분석하고 조롱해줘.
+반드시 한국어 존댓말로 답변해. 겉은 공손하지만 내용은 날카롭고 비꼬는 투로.
+
+유저 닉네임: ${nickname}
+주제: ${topicName}
+유저가 쓴 텍스트:
+"""
+${text}
+"""
+
+반드시 아래 JSON 형식으로만 응답해. 다른 텍스트 없이 JSON만 출력해:
+{
+  "vocabAge": 5~80 사이 숫자 (정신적 어휘 연령),
+  "score": 0~100 사이 숫자 (문해력 점수),
+  "repeatedWords": [
+    {"word": "가장 많이 반복한 단어1", "count": 횟수},
+    {"word": "가장 많이 반복한 단어2", "count": 횟수},
+    {"word": "가장 많이 반복한 단어3", "count": 횟수}
+  ],
+  "analysis": "어휘 분석 팩폭 코멘트 3~4문장, 존댓말로 정중하지만 비꼬는 투",
+  "keyword": "어휘 특성 키워드 1개 (예: 복사붙여넣기급)",
+  "era": "어휘가 머물러 있는 시대 (예: 2010년대)",
+  "roast": "한 줄 핵심 디스 (공유용)",
+  "summary": "${nickname} 님의 어휘력은 N세 수준입니다"
+}`;
+  }
+
+  function parseAIResponse(text) {
+    const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/) || text.match(/(\{[\s\S]*\})/);
+    if (!jsonMatch) throw new Error('JSON not found in response');
+
+    const parsed = JSON.parse(jsonMatch[1]);
+
+    if (!parsed.analysis || !Array.isArray(parsed.repeatedWords)) {
+      throw new Error('Missing required fields');
+    }
+
+    return {
+      vocabAge: Math.max(5, Math.min(80, Number(parsed.vocabAge) || 10)),
+      score: Math.max(0, Math.min(100, Number(parsed.score) || 30)),
+      repeatedWords: parsed.repeatedWords.slice(0, 3).map((w) => ({
+        word: String(w.word),
+        count: Number(w.count) || 1,
+      })),
+      analysis: String(parsed.analysis),
+      keyword: String(parsed.keyword || '어휘 빈곤'),
+      era: String(parsed.era || '2010년대'),
+      roast: String(parsed.roast || ''),
+      summary: String(parsed.summary || `${currentNickname} 님의 어휘력 분석 완료`),
+    };
+  }
+
+  async function callAI(nickname, topic, text) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+
+    try {
+      const response = await fetch(LM_STUDIO_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: LM_STUDIO_MODEL,
+          messages: [
+            { role: 'system', content: '너는 날카로운 국어 선생님이야. 반드시 요청된 JSON 형식으로만 응답해. 한국어 존댓말로 답변해. 겉은 공손하지만 내용은 날카롭고 비꼬는 투를 유지해.' },
+            { role: 'user', content: buildPrompt(nickname, topic, text) },
+          ],
+          temperature: 0.9,
+          max_tokens: 1024,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content;
+      if (!content) throw new Error('Empty AI response');
+
+      return parseAIResponse(content);
+    } catch (err) {
+      clearTimeout(timeoutId);
+      console.warn('AI call failed, using fallback:', err.message);
+      return null;
+    }
   }
 
   // ── Fallback Engine ──
@@ -323,13 +442,34 @@
 
     try {
       await document.fonts.ready;
+
+      // html2canvas가 CSS 애니메이션 최종 상태를 못 읽으므로 캡처 전 애니메이션 제거
+      const animatedEls = card.querySelectorAll('.word-card, .analysis-section, .animate-in, .word-pop, .slide-up');
+      animatedEls.forEach((el) => {
+        el.style.animation = 'none';
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+      });
+
       const canvas = await html2canvas(card, {
         scale: 2,
         backgroundColor: '#0F0A2E',
         useCORS: true,
         logging: false,
+        x: 0,
+        y: 0,
+        scrollX: 0,
+        scrollY: 0,
+        width: card.scrollWidth,
+        height: card.scrollHeight,
       });
       canvas.toBlob((blob) => {
+        // 캡처 후 인라인 스타일 복원
+        animatedEls.forEach((el) => {
+          el.style.animation = '';
+          el.style.opacity = '';
+          el.style.transform = '';
+        });
         if (!blob) { showToast('이미지 생성에 실패했습니다'); return; }
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');

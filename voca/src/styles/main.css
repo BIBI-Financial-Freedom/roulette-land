@@ -113,9 +113,6 @@ body::before {
 /* --- Neon text classes --- */
 .neon-cyan {
   color: var(--neon-cyan);
-  text-shadow:
-    0 0 4px var(--neon-cyan),
-    0 0 8px rgba(0, 240, 255, 0.5);
 }
 
 .neon-magenta {
@@ -347,13 +344,12 @@ body::before {
   font-weight: 900;
   letter-spacing: 8px;
   color: var(--neon-cyan);
-  text-shadow: 0 0 4px var(--neon-cyan), 0 0 8px rgba(0, 240, 255, 0.5);
   margin-bottom: 16px;
 }
 
 .result-user {
   font-size: 0.9rem;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   margin-bottom: 8px;
 }
 
@@ -373,7 +369,7 @@ body::before {
 .age-unit {
   font-size: 1.4rem;
   font-weight: 700;
-  color: var(--text-secondary);
+  color: #E0E0E0;
 }
 
 /* --- Score Gauge --- */
@@ -383,7 +379,7 @@ body::before {
 .score-label {
   display: block;
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: #C0C0C0;
   margin-bottom: 8px;
   text-align: left;
 }
@@ -409,7 +405,7 @@ body::before {
 }
 .gauge-unit {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: #C0C0C0;
 }
 
 /* --- Badges --- */
@@ -426,7 +422,7 @@ body::before {
   border-radius: 20px;
   background: rgba(0, 240, 255, 0.08);
   border: 1px solid rgba(0, 240, 255, 0.2);
-  color: var(--text-secondary);
+  color: #E0E0E0;
 }
 
 .divider {
@@ -466,13 +462,13 @@ body::before {
 }
 .word-count {
   font-size: 0.7rem;
-  color: var(--text-muted);
+  color: #C0C0C0;
 }
 
 /* --- Analysis --- */
 .analysis-text {
   font-size: 0.85rem;
-  color: var(--text-secondary);
+  color: #F0F0F0;
   line-height: 1.7;
   text-align: left;
 }
@@ -481,7 +477,7 @@ body::before {
 .watermark {
   margin-top: 20px;
   font-size: 0.7rem;
-  color: var(--text-muted);
+  color: #888888;
   letter-spacing: 2px;
 }
 
