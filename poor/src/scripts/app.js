@@ -89,16 +89,25 @@
     return '₩' + n.toLocaleString('ko-KR');
   }
 
-  async function runLoadingSequence() {
+  async function runLoadingSequence(aiDoneSignal) {
     let progress = 0;
     let msgIdx = 0;
     let balIdx = 0;
+    let aiDone = false;
+
+    // AI 완료 시 신호 수신
+    aiDoneSignal.then(() => { aiDone = true; });
 
     return new Promise((resolve) => {
       const tick = setInterval(() => {
-        // Progress
-        progress += Math.random() * 8 + 2;
-        if (progress > 95) progress = 95;
+        // Progress — AI 완료 전에는 85%까지, 완료 후 100%로
+        if (aiDone) {
+          progress += (100 - progress) * 0.3;
+          if (progress > 99.5) progress = 100;
+        } else {
+          progress += Math.random() * 6 + 1;
+          if (progress > 85) progress = 85;
+        }
         progressFill.style.width = Math.round(progress) + '%';
         progressText.textContent = Math.round(progress) + '% 분석 완료';
 
@@ -118,24 +127,115 @@
           }
           balIdx++;
         }
-      }, 300);
 
-      // Finish after ~3s
-      setTimeout(() => {
-        clearInterval(tick);
-        progressFill.style.width = '100%';
-        progressText.textContent = '100% 분석 완료';
-        loadingTitle.textContent = '분석 완료!';
-        setTimeout(resolve, 500);
-      }, 3000);
+        // 100% 도달 시 완료
+        if (progress >= 100) {
+          clearInterval(tick);
+          progressFill.style.width = '100%';
+          progressText.textContent = '100% 분석 완료';
+          loadingTitle.textContent = '분석 완료!';
+          setTimeout(resolve, 500);
+        }
+      }, 300);
     });
   }
 
-  // ── Fallback Engine (Demo — no real API yet) ──
+  // ── LM Studio AI Engine ──
+  const LM_STUDIO_URL = 'http://localhost:1234/v1/chat/completions';
+  const LM_STUDIO_MODEL = 'gemma-4-e4b-it-heretic';
+  const API_TIMEOUT = 15000; // 15초
+
+  function buildPrompt(nickname, expenses) {
+    return `너는 독설가 금융 전문가야. 유저의 쓸데없는 소비 습관을 보고 파산 시점을 예언하고 조롱해줘.
+반드시 한국어로 답변해.
+
+중요: futureDescription과 roasts의 모든 문장은 반드시 정중한 존댓말(~습니다, ~네요, ~세요 등)로 작성해.
+겉으로는 공손하지만 내용은 날카롭고 비꼬는 투로, 팩폭이 제대로 느껴지게 해줘.
+
+유저 닉네임: ${nickname}
+쓸데없는 소비 1: ${expenses[0]}
+쓸데없는 소비 2: ${expenses[1]}
+쓸데없는 소비 3: ${expenses[2]}
+
+반드시 아래 JSON 형식으로만 응답해. 다른 텍스트 없이 JSON만 출력해:
+{
+  "bankruptDate": "YYYY년 MM월 (연도는 반드시 2027년 이후)",
+  "poorScore": 0~100 사이 숫자,
+  "futureDescription": "파산 후 모습 묘사 2~3문장, 구체적이고 웃긴 상황, 반드시 존댓말",
+  "roasts": [
+    "소비1에 대한 팩폭 코멘트 1문장 (존댓말, 정중하지만 비꼬는 투)",
+    "소비2에 대한 팩폭 코멘트 1문장 (존댓말, 정중하지만 비꼬는 투)",
+    "소비3에 대한 팩폭 코멘트 1문장 (존댓말, 정중하지만 비꼬는 투)"
+  ],
+  "summary": "${nickname} 님은 YYYY년 MM월 파산 예정"
+}`;
+  }
+
+  function parseAIResponse(text) {
+    // JSON 블록 추출 (```json ... ``` 또는 순수 JSON)
+    const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/) || text.match(/(\{[\s\S]*\})/);
+    if (!jsonMatch) throw new Error('JSON not found in response');
+
+    const parsed = JSON.parse(jsonMatch[1]);
+
+    // 필수 필드 검증
+    if (!parsed.bankruptDate || !parsed.futureDescription || !Array.isArray(parsed.roasts)) {
+      throw new Error('Missing required fields');
+    }
+
+    return {
+      bankruptDate: String(parsed.bankruptDate),
+      poorScore: Math.max(0, Math.min(100, Number(parsed.poorScore) || 75)),
+      futureDescription: String(parsed.futureDescription),
+      roasts: parsed.roasts.map(String).slice(0, 3),
+      summary: String(parsed.summary || `결과 생성 완료`),
+    };
+  }
+
+  async function callAI(nickname, expenses) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+
+    try {
+      const response = await fetch(LM_STUDIO_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: LM_STUDIO_MODEL,
+          messages: [
+            { role: 'system', content: '너는 독설가 금융 전문가야. 반드시 요청된 JSON 형식으로만 응답해. 한국어 존댓말로 답변해. 겉은 공손하지만 내용은 날카롭고 비꼬는 투를 유지해.' },
+            { role: 'user', content: buildPrompt(nickname, expenses) },
+          ],
+          temperature: 0.9,
+          max_tokens: 1024,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content;
+      if (!content) throw new Error('Empty AI response');
+
+      return parseAIResponse(content);
+    } catch (err) {
+      clearTimeout(timeoutId);
+      console.warn('AI call failed, using fallback:', err.message);
+      return null;
+    }
+  }
+
+  // ── Fallback Engine ──
   function generateFallbackResult(nickname, expenses) {
     const months = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
     const futureMonth = months[Math.floor(Math.random() * 12)];
-    const futureYear = Math.random() > 0.4 ? '2026년' : '2027년';
+    const yearOffset = Math.floor(Math.random() * 3); // 0~2년 후
+    const futureYear = (2027 + yearOffset) + '년';
     const poorScore = Math.floor(Math.random() * 30) + 70; // 70~99
 
     const descriptions = [
@@ -266,14 +366,27 @@
 
     try {
       await document.fonts.ready;
+
+      // html2canvas가 CSS 애니메이션 최종 상태를 못 읽으므로 캡처 전 opacity 강제 설정
+      const roastItems = card.querySelectorAll('.roast-item');
+      roastItems.forEach((el) => { el.style.opacity = '1'; el.style.transform = 'none'; });
+
       const canvas = await html2canvas(card, {
         scale: 2,
         backgroundColor: '#0D0D0D',
         useCORS: true,
         logging: false,
+        x: 0,
+        y: 0,
+        scrollX: 0,
+        scrollY: 0,
+        width: card.scrollWidth,
+        height: card.scrollHeight,
       });
 
       canvas.toBlob((blob) => {
+        // 캡처 후 인라인 스타일 복원
+        roastItems.forEach((el) => { el.style.opacity = ''; el.style.transform = ''; });
         if (!blob) {
           showToast('이미지 생성에 실패했습니다');
           return;
@@ -341,11 +454,23 @@
     // Switch to loading
     showScreen(screenLoading);
 
-    // Run loading animation
-    await runLoadingSequence();
+    // AI 호출 — 완료 신호를 로딩 애니메이션에 전달
+    let signalAIDone;
+    const aiDoneSignal = new Promise((resolve) => { signalAIDone = resolve; });
 
-    // Generate result (fallback — demo mode)
-    currentResult = generateFallbackResult(currentNickname, expenses);
+    const aiPromise = callAI(currentNickname, expenses).then((result) => {
+      signalAIDone();
+      return result;
+    });
+
+    // 로딩 애니메이션은 AI 완료 시까지 자연스럽게 진행
+    const [aiResult] = await Promise.all([
+      aiPromise,
+      runLoadingSequence(aiDoneSignal),
+    ]);
+
+    // AI 성공 시 사용, 실패 시 폴백
+    currentResult = aiResult || generateFallbackResult(currentNickname, expenses);
 
     // Render
     renderResult(currentNickname, currentResult);

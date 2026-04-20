@@ -133,9 +133,6 @@ body::before {
 
 .neon-pink {
   color: var(--neon-pink);
-  text-shadow:
-    0 0 4px var(--neon-pink),
-    0 0 8px rgba(255, 45, 120, 0.5);
 }
 
 /* ==========================================
@@ -358,11 +355,9 @@ body::before {
 .result-card {
   width: 100%;
   max-width: 360px;
-  aspect-ratio: 9 / 16;
   background: var(--bg-gradient);
   border: 1px solid rgba(255, 45, 120, 0.3);
   border-radius: var(--radius-lg);
-  overflow: hidden;
   box-shadow:
     0 0 20px rgba(255, 45, 120, 0.15),
     inset 0 0 30px rgba(0, 0, 0, 0.5);
@@ -373,7 +368,6 @@ body::before {
   flex-direction: column;
   align-items: center;
   padding: 28px 20px 20px;
-  height: 100%;
 }
 
 .result-heading {
@@ -390,7 +384,7 @@ body::before {
 
 .result-name {
   font-size: 1rem;
-  color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 .result-name span {
@@ -400,7 +394,7 @@ body::before {
 
 .result-label {
   font-size: 0.85rem;
-  color: var(--text-muted);
+  color: #C0C0C0;
   margin-top: 2px;
 }
 
@@ -422,7 +416,7 @@ body::before {
 
 .gauge-label {
   font-size: 0.8rem;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   margin-bottom: 8px;
 }
 
@@ -468,7 +462,7 @@ body::before {
 .result-desc-text {
   font-size: 0.85rem;
   line-height: 1.6;
-  color: var(--text-secondary);
+  color: #E0E0E0;
   text-align: center;
   font-style: italic;
 }
@@ -502,13 +496,13 @@ body::before {
 .roast-text {
   font-size: 0.78rem;
   line-height: 1.5;
-  color: var(--text-secondary);
+  color: #F0F0F0;
 }
 
 /* Watermark */
 .result-watermark {
   font-size: 0.65rem;
-  color: var(--text-muted);
+  color: #888888;
   text-align: center;
   margin-top: auto;
   padding-top: 8px;
