@@ -1,2 +1,2 @@
 # Organized mirror copy. The deployed site still needs the same content at /ads.txt.
-google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+google.com, pub-4002549472519807, DIRECT, f08c47fec0942fa0

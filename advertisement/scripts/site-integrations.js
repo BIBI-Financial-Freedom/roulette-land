@@ -200,7 +200,9 @@
     if (adSlots.length === 0) return;
 
     const adConfig = config.ads || {};
-    const previewSlots = localPreview && adConfig.showPlaceholdersOnLocal !== false;
+    const previewSlots = localPreview
+      ? adConfig.showPlaceholdersOnLocal !== false
+      : adConfig.showPlaceholdersOnLive === true;
     const preferredProvider = getDefaultProvider();
 
     adSlots.forEach(slot => {

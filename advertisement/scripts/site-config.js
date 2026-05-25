@@ -13,8 +13,9 @@ window.ROULETTE_SITE_CONFIG = Object.freeze({
     enabled: false,
     provider: 'adsense',
     showPlaceholdersOnLocal: true,
+    showPlaceholdersOnLive: true,
     adsense: {
-      client: '',
+      client: 'ca-pub-4002549472519807',
       slots: {
         hub_top: '',
         hub_bottom: '',
