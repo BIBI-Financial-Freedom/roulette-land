@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la \"D:/Program Files \\(x86\\)/github/Epic Fury/roulette-land\")"
+    ]
+  }
+}
